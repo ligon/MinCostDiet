@@ -1,0 +1,60 @@
+* Introduction
+The idea of this project is to solve the problem of finding the
+minimum cost diet satisfying a set of "Recommended Daily Allowances"
+(RDAs) for a particular set of nutrients.
+
+This problem was first "solved" by cite:stigler45 for a set of foods
+and prices (and RDA requirements).  Times have changed: the variety of
+different kinds of food, food prices, and RDA requirements are all
+quite different from what they were for our grandparents.  
+
+* The Model
+ 
+Stigler's insight was  that the  minimum cost diet (MCD) problem was
+most naturally posed as a [[https://en.wikipedia.org/wiki/Linear_programming][linear program]].  If there are $n$ different
+kinds of food one can buy, represent quantities consumed of these as a
+vector $x$.  Each kind of food has a corresponding price that the
+consumer takes as given, call this vector of prices $p$. Then  the
+cost of a consumer's diet is $p'x$, where the prime indicates the
+inner or [[https://en.wikipedia.org/wiki/Dot_product][dot product]] of the two vectors.
+
+Each unit of a given kind of food is assumed to provide a set of
+nutrients, of the sort often reported on food labels.   If there are
+$m$ nutrients, then let $N$ be a matrix with $m$ rows and $n$ columns
+describing the nutritional content of a single unit of each of kind of
+food.
+
+There are various sources of recommendations regarding nutrition.
+These can take the form of either equalities or inequalities.  For
+example, it is recommended that females in their twenties consume 2000
+kilo-calories, 46 grams of protein, and  28 grams of fiber per day,
+but  less than 23 grams of sodium.  
+
+
+
+
+* Inputs
+
+** Dietary Guidelines
+   A compilation of dietary guidelines are provided at
+   https://health.gov/dietaryguidelines/2015/guidelines/appendix-7/;
+   these provide recommended levels of 31 different nutrients by age
+   and sex. 
+
+** Nutritional content of different kinds of food
+
+   A source for nutritional information for different kinds of food is
+   provided by the USDA.   
+
+   Note that USDA dataset uses "NDB" codes to identify different
+   kinds of foods; can also map NDB -> UPC for many (mostly processed) foods.
+      - https://ndb.nal.usda.gov/ndb/search/list;
+      - here's documentation of the api: https://ndb.nal.usda.gov/ndb/doc/index
+      - Here's the actual data:
+          https://www.ars.usda.gov/northeast-area/beltsville-md/beltsville-human-nutrition-research-center/nutrient-data-laboratory/docs/sr28-download-files/
+
+** Food prices 
+
+
+* References
+\printbibliography
