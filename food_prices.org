@@ -1,0 +1,135 @@
+#+PROPERTY: header-args:python :results output raw  :noweb no-export :exports code
+
+* USDA Nutrition DataBase
+
+  The USDA maintains a database of nutritional information, where
+  different kinds of food are identified by an NDB number.  They do
+  not provide any data on prices.  
+
+  To look up nutritional information, use api provided by the USDA at
+  https://ndb.nal.usda.gov/ndb/doc/index.   You'll need to sign up for a
+  free api key (see directions on page), then supply that key here:
+
+#+begin_src python :session :results silent
+  apikey = "inIyO1begWSRqsYtxS7m6p09PSyq7Qiw7fxzV2qN"
+#+end_src
+
+* Data on Prices
+
+Here's an effort to describe some different kinds of food, along with
+data on food prices.  This is all just based on my last trip to the
+grocery store, except that I've used the USDA database to look up NDB
+numbers.  Note that one may need to protect leading zeros with "" for
+the NDB numbers.
+
+Also note that some kinds of foods need to have unit weights (in
+grams) supplied under "Units"; e.g., extra large eggs are taken to
+each way 56g.  These conversions can also often be found on the USDA
+NDB website.  Othertimes not---I still need to weigh a crumpet.
+
+#+name: food_prices
+| Food                   | Quantity | Units  | Price | Date             | Location                  |      NDB |
+|------------------------+----------+--------+-------+------------------+---------------------------+----------|
+| Milk, 2% fat           |        1 | gallon |  4.99 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45226447 |
+| Eggs, extra large      |       12 | 56g    |  3.59 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45208918 |
+| Crumpets               |        6 | units  |  3.19 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45324369 |
+| Bananas                |        1 | pound  |  3.15 | [2019-09-14 Sat] | Monterey Market, Berkeley |  "09040" |
+| Carrots, Organic       |        2 | pound  |  2.29 | [2019-09-14 Sat] | Monterey Market, Berkeley |    11124 |
+| Cauliflower            |     2.51 | pound  |  4.24 | [2019-09-14 Sat] | Monterey Market, Berkeley |    11135 |
+| Endive, Red            |     1.26 | pound  |  6.27 | [2019-09-14 Sat] | Monterey Market, Berkeley |    11213 |
+| Figs, black mission    |        1 | pound  |  4.98 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45170327 |
+| Leeks, Organic         |        1 | pound  |  1.29 | [2019-09-14 Sat] | Monterey Market, Berkeley |    11246 |
+| Lettuce, Little Gem    |        1 | pound  |  5.98 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45276886 |
+| Mushrooms, King Oyster |        1 | pound  |    12 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45218868 |
+| Onion, yellow          |        1 | pound  |  0.39 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45339306 |
+| Orange juice           |      0.5 | gallon |  8.98 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45213207 |
+| Parsnip                |        1 | pound  |  1.98 | [2019-09-14 Sat] | Monterey Market, Berkeley |    11298 |
+| Potato, marble mix     |        1 | pound  |  2.59 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45169597 |
+| Rhubarb                |        1 | pound  |  1.84 | [2019-09-14 Sat] | Monterey Market, Berkeley |  "09307" |
+| Potato, russet         |       10 | pound  |  2.98 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45364251 |
+| Squash, Zucchini       |        1 | pound  |  1.49 | [2019-09-14 Sat] | Monterey Market, Berkeley |    11477 |
+
+#+begin_src python :var F=food_prices :colnames no :results silent :exports none
+  from cfe.df_utils import orgtbl_to_df, df_to_orgtbl
+
+  df = orgtbl_to_df(F,dtype=str)
+  df.to_csv('./Data/ligons_shopping.csv')
+
+#+end_src
+
+* Nutritional information
+#+begin_src python :session
+  import ndb
+  import pandas as pd
+  from cfe.df_utils import orgtbl_to_df, df_to_orgtbl
+
+  df = pd.read_csv('./Data/ligons_shopping.csv',dtype=str)
+
+  D = {}
+  for food in  df.Food.tolist():
+      D[food] = ndb.ndb_report(apikey,df.loc[df.Food==food,:].NDB).Quantity
+
+  D = pd.DataFrame(D)
+
+  print(df_to_orgtbl(D))
+
+
+#+end_src
+
+
+* Appendix =ndb=                                                   :noexport:
+#+begin_src python :results output raw :tangle ndb.py
+  from cfe.df_utils import orgtbl_to_df, df_to_orgtbl
+  from urllib.request import Request, urlopen
+  import pandas as pd
+  import json
+  import warnings
+
+  #%matplotlib inline
+
+  import requests
+
+  def ndb_search(apikey, term, url = 'https://api.nal.usda.gov/ndb/search'):
+      """
+      Search Nutrition DataBase, using apikey and string "term" as search criterion.
+
+      Returns a pd.DataFrame of results.
+      """
+      parms = (('format', 'json'),('q', term),('api_key', apikey))
+      r = requests.get(url, params = parms)
+      if 'list' in r.json():
+          l = r.json()['list']['item']
+      else: 
+          return []
+
+      return pd.DataFrame(l)
+
+  def ndb_report(apikey, ndbno, url = 'https://api.nal.usda.gov/ndb/V2/reports'):
+      """Construct a food report for food with given ndbno.  
+
+      Nutrients are given per 100 g or 100 ml of the food.
+      """
+      params = (('ndbno', ndbno),('type', 'b'),('format', 'json'),('api_key', apikey))
+
+      try:
+          r = requests.get(url, params = params)
+          L = r.json()['foods'][0]['food']['nutrients']
+      except KeyError:
+          warnings.warn("Couldn't find NDB=%s." % ndbno)
+          return None
+
+      v = {}
+      u = {}
+      for l in L:
+          v[l['name']] = l['value']  # Quantity
+          u[l['name']] = l['unit']  # Units
+
+      #print(l)
+      N = pd.DataFrame({'Quantity':v,'Units':u})
+
+      return N
+
+#+end_src
+
+
+
