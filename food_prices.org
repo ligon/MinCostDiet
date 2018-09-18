@@ -57,6 +57,8 @@ NDB website.  Othertimes not---I still need to weigh a crumpet.
 
 #+end_src
 
+And here's a little code b
+
 * Nutritional information
 
 Information on prices for different goods is found in a collection of
@@ -75,7 +77,7 @@ CSVs = ["./Data/ligons_shopping.csv"]
   import pandas as pd
 
   DFs = []
-  for csv in CSVS:
+  for csv in CSVs:
     DFs.append(pd.read_csv(csv,dtype=str))
 
   df = pd.concat(DFs)
