@@ -57,7 +57,14 @@ NDB website.  Othertimes not---I still need to weigh a crumpet.
 
 #+end_src
 
-And here's a little code b
+And here's a little code to help look up NDB codes for foods of
+different descriptions.
+
+#+begin_src python :results output :session 
+import ndb
+
+ndb.ndb_search(apikey,"Great Value Buttermilk Pancakes")
+#+end_src
 
 * Nutritional information
 
