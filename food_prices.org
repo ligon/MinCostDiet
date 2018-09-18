@@ -58,12 +58,27 @@ NDB website.  Othertimes not---I still need to weigh a crumpet.
 #+end_src
 
 * Nutritional information
+
+Information on prices for different goods is found in a collection of
+=csv= files in [[./Data/]].  You can generate additional files by using a
+spreadsheet and exporting to the appropriate file format, then putting
+that file in the [[./Data/]] directory.  These files should have the same
+columns and format as the example above.  Then add them to the list
+below.
+
+#+begin_src python :session
+CSVs = ["./Data/ligons_shopping.csv"]
+#+end_src
+
 #+begin_src python :session
   import ndb
   import pandas as pd
-  from cfe.df_utils import orgtbl_to_df, df_to_orgtbl
 
-  df = pd.read_csv('./Data/ligons_shopping.csv',dtype=str)
+  DFs = []
+  for csv in CSVS:
+    DFs.append(pd.read_csv(csv,dtype=str))
+
+  df = pd.concat(DFs)
 
   D = {}
   for food in  df.Food.tolist():
@@ -71,15 +86,13 @@ NDB website.  Othertimes not---I still need to weigh a crumpet.
 
   D = pd.DataFrame(D)
 
-  print(df_to_orgtbl(D))
-
+  print(D.T)
 
 #+end_src
 
 
 * Appendix =ndb=                                                   :noexport:
 #+begin_src python :results output raw :tangle ndb.py
-  from cfe.df_utils import orgtbl_to_df, df_to_orgtbl
   from urllib.request import Request, urlopen
   import pandas as pd
   import json
