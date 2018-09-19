@@ -4,7 +4,8 @@ minimum cost diet satisfying a set of "Recommended Daily Allowances"
 (RDAs) for a particular set of nutrients.
 
 This problem was first "solved" by cite:stigler45 for a set of foods
-and prices (and RDA requirements).  Times have changed: the variety of
+and prices and RDA requirements (see cite:dantzig90 for an
+entertaining discussion of what "solved" meant in that context).  Times have changed: the variety of
 different kinds of food, food prices, and RDA requirements are all
 quite different from what they were for our grandparents.  
 
@@ -19,7 +20,7 @@ cost of a consumer's diet is $p'x$, where the prime indicates the
 inner or [[https://en.wikipedia.org/wiki/Dot_product][dot product]] of the two vectors.
 
 Each unit of a given kind of food is assumed to provide a set of
-nutrients, of the sort often reported on food labels.   If there are
+nutrients, of the sort often reported on food labels.  If there are
 $m$ nutrients, then let $N$ be a matrix with $m$ rows and $n$ columns
 describing the nutritional content of a single unit of each of kind of
 food.
@@ -33,7 +34,7 @@ but  less than 23 grams of sodium.
 
 
 
-* Inputs
+* Inputs                                                           :noexport:
 
 ** Dietary Guidelines
    A compilation of dietary guidelines are provided at
