@@ -1,8 +1,11 @@
-from cfe.df_utils import orgtbl_to_df, df_to_orgtbl
 from urllib.request import Request, urlopen
 import pandas as pd
 import json
 import warnings
+from pint import UnitRegistry, UndefinedUnitError, DimensionalityError
+ureg = UnitRegistry()
+ureg.load_definitions('./Data/food_units.txt') 
+import numpy as np
 
 #%matplotlib inline
 
@@ -47,3 +50,15 @@ def ndb_report(apikey, ndbno, url = 'https://api.nal.usda.gov/ndb/V2/reports'):
     N = pd.DataFrame({'Quantity':v,'Units':u})
 
     return N
+
+def ndb_units(q,u,ureg=ureg):
+    """Convert quantity q of units u to 100g or 100ml."""
+    try:
+        x = ureg.Quantity(float(q),u)
+    except UndefinedUnitError:
+        return ureg.Quantity(np.NaN,'ml')
+
+    try:
+        return x.to(ureg.hectogram)
+    except DimensionalityError:
+        return x.to(ureg.deciliter)
