@@ -1,0 +1,1 @@
+extra_large_egg = 56 * grams = xl_egg
