@@ -10,7 +10,7 @@
   https://ndb.nal.usda.gov/ndb/doc/index.   You'll need to sign up for a
   free api key (see directions on page), then supply that key here:
 
-#+begin_src python :session :results silent
+#+begin_src python :session :tangle food_prices.py :results silent
   apikey = "inIyO1begWSRqsYtxS7m6p09PSyq7Qiw7fxzV2qN"
 #+end_src
 
@@ -24,30 +24,36 @@ the NDB numbers.
 
 Also note that some kinds of foods need to have unit weights (in
 grams) supplied under "Units"; e.g., extra large eggs are taken to
-each way 56g.  These conversions can also often be found on the USDA
+each weigh 56g.  These conversions can also often be found on the USDA
 NDB website.  Othertimes not---I still need to weigh a crumpet.
 
+Food is purchased in particular units (gallons, pounds, grams).  And
+in some cases the natural units are things like donuts or eggs, in
+which case we may need to define our  own units (see the example of
+"xl_egg" below).
+
+
 #+name: food_prices
-| Food                   | Quantity | Units  | Price | Date             | Location                  |      NDB |
-|------------------------+----------+--------+-------+------------------+---------------------------+----------|
-| Milk, 2% fat           |        1 | gallon |  4.99 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45226447 |
-| Eggs, extra large      |       12 | 56g    |  3.59 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45208918 |
-| Crumpets               |        6 | units  |  3.19 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45324369 |
-| Bananas                |        1 | pound  |  3.15 | [2019-09-14 Sat] | Monterey Market, Berkeley |  "09040" |
-| Carrots, Organic       |        2 | pound  |  2.29 | [2019-09-14 Sat] | Monterey Market, Berkeley |    11124 |
-| Cauliflower            |     2.51 | pound  |  4.24 | [2019-09-14 Sat] | Monterey Market, Berkeley |    11135 |
-| Endive, Red            |     1.26 | pound  |  6.27 | [2019-09-14 Sat] | Monterey Market, Berkeley |    11213 |
-| Figs, black mission    |        1 | pound  |  4.98 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45170327 |
-| Leeks, Organic         |        1 | pound  |  1.29 | [2019-09-14 Sat] | Monterey Market, Berkeley |    11246 |
-| Lettuce, Little Gem    |        1 | pound  |  5.98 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45276886 |
-| Mushrooms, King Oyster |        1 | pound  |    12 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45218868 |
-| Onion, yellow          |        1 | pound  |  0.39 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45339306 |
-| Orange juice           |      0.5 | gallon |  8.98 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45213207 |
-| Parsnip                |        1 | pound  |  1.98 | [2019-09-14 Sat] | Monterey Market, Berkeley |    11298 |
-| Potato, marble mix     |        1 | pound  |  2.59 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45169597 |
-| Rhubarb                |        1 | pound  |  1.84 | [2019-09-14 Sat] | Monterey Market, Berkeley |  "09307" |
-| Potato, russet         |       10 | pound  |  2.98 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45364251 |
-| Squash, Zucchini       |        1 | pound  |  1.49 | [2019-09-14 Sat] | Monterey Market, Berkeley |    11477 |
+| Food                   | Quantity | Units   | Price | Date             | Location                  |      NDB |
+|------------------------+----------+---------+-------+------------------+---------------------------+----------|
+| Milk, 2% fat           |        1 | gallon  |  4.99 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45226447 |
+| Eggs, extra large      |       12 | xl_egg  |  3.59 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45208918 |
+| Crumpets               |        6 | crumpet |  3.19 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45324369 |
+| Bananas                |        1 | pound   |  3.15 | [2019-09-14 Sat] | Monterey Market, Berkeley |  "09040" |
+| Carrots, Organic       |        2 | pound   |  2.29 | [2019-09-14 Sat] | Monterey Market, Berkeley |    11124 |
+| Cauliflower            |     2.51 | pound   |  4.24 | [2019-09-14 Sat] | Monterey Market, Berkeley |    11135 |
+| Endive, Red            |     1.26 | pound   |  6.27 | [2019-09-14 Sat] | Monterey Market, Berkeley |    11213 |
+| Figs, black mission    |        1 | pound   |  4.98 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45170327 |
+| Leeks, Organic         |        1 | pound   |  1.29 | [2019-09-14 Sat] | Monterey Market, Berkeley |    11246 |
+| Lettuce, Little Gem    |        1 | pound   |  5.98 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45276886 |
+| Mushrooms, King Oyster |        1 | pound   |    12 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45218868 |
+| Onion, yellow          |        1 | pound   |  0.39 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45339306 |
+| Orange juice           |      0.5 | gallon  |  8.98 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45213207 |
+| Parsnip                |        1 | pound   |  1.98 | [2019-09-14 Sat] | Monterey Market, Berkeley |    11298 |
+| Potato, marble mix     |        1 | pound   |  2.59 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45169597 |
+| Rhubarb                |        1 | pound   |  1.84 | [2019-09-14 Sat] | Monterey Market, Berkeley |  "09307" |
+| Potato, russet         |       10 | pound   |  2.98 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45364251 |
+| Squash, Zucchini       |        1 | pound   |  1.49 | [2019-09-14 Sat] | Monterey Market, Berkeley |    11477 |
 
 #+begin_src python :var F=food_prices :colnames no :results silent :exports none
   from cfe.df_utils import orgtbl_to_df, df_to_orgtbl
@@ -60,11 +66,12 @@ NDB website.  Othertimes not---I still need to weigh a crumpet.
 And here's a little code to help look up NDB codes for foods of
 different descriptions.
 
-#+begin_src python :results output :session 
+#+begin_src python :results output :session :tangle food_prices.py 
 import ndb
 
 ndb.ndb_search(apikey,"Great Value Buttermilk Pancakes")
 #+end_src
+
 
 * Nutritional information
 
@@ -75,11 +82,13 @@ that file in the [[./Data/]] directory.  These files should have the same
 columns and format as the example above.  Then add them to the list
 below.
 
-#+begin_src python :session
+#+begin_src python :session :tangle food_prices.py
 CSVs = ["./Data/ligons_shopping.csv"]
 #+end_src
 
-#+begin_src python :session
+#+results:
+
+#+begin_src python :session :tangle food_prices.py
   import ndb
   import pandas as pd
 
@@ -88,6 +97,9 @@ CSVs = ["./Data/ligons_shopping.csv"]
     DFs.append(pd.read_csv(csv,dtype=str))
 
   df = pd.concat(DFs)
+  # Some columns which ought to be numeric are actually str; convert them
+  df['Price'] = df['Price'].astype(float)
+  df['Quantity'] = df['Quantity'].astype(float)
 
   D = {}
   for food in  df.Food.tolist():
@@ -99,57 +111,120 @@ CSVs = ["./Data/ligons_shopping.csv"]
 
 #+end_src
 
+#+results:
 
+>>> >>> >>> ... ... >>> >>> >>> >>> ... ... >>>                        Caffeine Calcium, Ca   ...     Water Zinc, Zn
+Milk, 2% fat                NaN         146   ...       NaN      NaN
+Eggs, extra large           NaN          71   ...       NaN     1.07
+Crumpets                    NaN           0   ...       NaN      NaN
+Bananas                       0           5   ...     74.91     0.15
+Carrots, Organic              0          33   ...     88.29     0.24
+Cauliflower                   0          22   ...     92.07     0.27
+Endive, Red                   0          52   ...     93.79     0.79
+Figs, black mission         NaN         150   ...       NaN      NaN
+Leeks, Organic                0          59   ...     83.00     0.12
+Lettuce, Little Gem         NaN          24   ...       NaN      NaN
+Mushrooms, King Oyster      NaN           0   ...       NaN      NaN
+Onion, yellow               NaN          27   ...       NaN      NaN
+Orange juice                NaN           8   ...       NaN      NaN
+Parsnip                       0          36   ...     79.53     0.59
+Potato, marble mix          NaN          14   ...       NaN     0.20
+Rhubarb                       0          86   ...     93.61     0.10
+Potato, russet              NaN          14   ...       NaN      NaN
+Squash, Zucchini              0          16   ...     94.79     0.32
+
+[18 rows x 33 columns]
+
+* Units & Prices
+
+A function =ndb_units= in the [[file:ndb.py::from%20urllib.request%20import%20Request,%20urlopen][ndb]] module accomplishes this conversion
+for many different units, using the =python= [[https://pint.readthedocs.io/en/latest/][pint module]].  A file
+[[file:Data/food_units.txt][./Data/food_units.txt]] can be edited to deal with odd cases such as
+donuts, using a format described in the =pint= [[https://pint.readthedocs.io/en/latest/defining.html][documentation]]. 
+
+#+begin_src python :results output raw :session :tangle food_prices.py 
+# Convert food quantities to NDB units
+df['NDB Quantity'] = df[['Quantity','Units']].T.apply(lambda x : ndb.ndb_units(x['Quantity'],x['Units']))
+
+# Now may want to filter df by time or place--need to get a unique set of food names.
+df['NDB Price'] = df['Price']/df['NDB Quantity']
+
+df.dropna(how='any') # Drop food with any missing data
+
+# To use minimum price observed
+Prices = df.groupby('Food')['NDB Price'].min()
+
+print(Prices.head())
+#+end_src
+
+
+  
 * Appendix =ndb=                                                   :noexport:
 #+begin_src python :results output raw :tangle ndb.py
-  from urllib.request import Request, urlopen
-  import pandas as pd
-  import json
-  import warnings
+from urllib.request import Request, urlopen
+import pandas as pd
+import json
+import warnings
+from pint import UnitRegistry, UndefinedUnitError, DimensionalityError
+ureg = UnitRegistry()
+ureg.load_definitions('./Data/food_units.txt') 
+import numpy as np
 
-  #%matplotlib inline
+#%matplotlib inline
 
-  import requests
+import requests
 
-  def ndb_search(apikey, term, url = 'https://api.nal.usda.gov/ndb/search'):
-      """
-      Search Nutrition DataBase, using apikey and string "term" as search criterion.
+def ndb_search(apikey, term, url = 'https://api.nal.usda.gov/ndb/search'):
+    """
+    Search Nutrition DataBase, using apikey and string "term" as search criterion.
 
-      Returns a pd.DataFrame of results.
-      """
-      parms = (('format', 'json'),('q', term),('api_key', apikey))
-      r = requests.get(url, params = parms)
-      if 'list' in r.json():
-          l = r.json()['list']['item']
-      else: 
-          return []
+    Returns a pd.DataFrame of results.
+    """
+    parms = (('format', 'json'),('q', term),('api_key', apikey))
+    r = requests.get(url, params = parms)
+    if 'list' in r.json():
+        l = r.json()['list']['item']
+    else: 
+        return []
 
-      return pd.DataFrame(l)
+    return pd.DataFrame(l)
 
-  def ndb_report(apikey, ndbno, url = 'https://api.nal.usda.gov/ndb/V2/reports'):
-      """Construct a food report for food with given ndbno.  
+def ndb_report(apikey, ndbno, url = 'https://api.nal.usda.gov/ndb/V2/reports'):
+    """Construct a food report for food with given ndbno.  
 
-      Nutrients are given per 100 g or 100 ml of the food.
-      """
-      params = (('ndbno', ndbno),('type', 'b'),('format', 'json'),('api_key', apikey))
+    Nutrients are given per 100 g or 100 ml of the food.
+    """
+    params = (('ndbno', ndbno),('type', 'b'),('format', 'json'),('api_key', apikey))
 
-      try:
-          r = requests.get(url, params = params)
-          L = r.json()['foods'][0]['food']['nutrients']
-      except KeyError:
-          warnings.warn("Couldn't find NDB=%s." % ndbno)
-          return None
+    try:
+        r = requests.get(url, params = params)
+        L = r.json()['foods'][0]['food']['nutrients']
+    except KeyError:
+        warnings.warn("Couldn't find NDB=%s." % ndbno)
+        return None
 
-      v = {}
-      u = {}
-      for l in L:
-          v[l['name']] = l['value']  # Quantity
-          u[l['name']] = l['unit']  # Units
+    v = {}
+    u = {}
+    for l in L:
+        v[l['name']] = l['value']  # Quantity
+        u[l['name']] = l['unit']  # Units
 
-      #print(l)
-      N = pd.DataFrame({'Quantity':v,'Units':u})
+    #print(l)
+    N = pd.DataFrame({'Quantity':v,'Units':u})
 
-      return N
+    return N
+
+def ndb_units(q,u,ureg=ureg):
+    """Convert quantity q of units u to 100g or 100ml."""
+    try:
+        x = ureg.Quantity(float(q),u)
+    except UndefinedUnitError:
+        return ureg.Quantity(np.NaN,'ml')
+
+    try:
+        return x.to(ureg.hectogram)
+    except DimensionalityError:
+        return x.to(ureg.deciliter)
 
 #+end_src
 

@@ -5,9 +5,10 @@ minimum cost diet satisfying a set of "Recommended Daily Allowances"
 
 This problem was first "solved" by cite:stigler45 for a set of foods
 and prices and RDA requirements (see cite:dantzig90 for an
-entertaining discussion of what "solved" meant in that context).  Times have changed: the variety of
-different kinds of food, food prices, and RDA requirements are all
-quite different from what they were for our grandparents.  
+entertaining discussion of what "solved" meant in that context).
+Times have changed: the variety of different kinds of food, food
+prices, and RDA requirements are all quite different from what they
+were for our grandparents.
 
 * The Model
  
