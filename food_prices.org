@@ -111,29 +111,6 @@ CSVs = ["./Data/ligons_shopping.csv"]
 
 #+end_src
 
-#+results:
-
->>> >>> >>> ... ... >>> >>> >>> >>> ... ... >>>                        Caffeine Calcium, Ca   ...     Water Zinc, Zn
-Milk, 2% fat                NaN         146   ...       NaN      NaN
-Eggs, extra large           NaN          71   ...       NaN     1.07
-Crumpets                    NaN           0   ...       NaN      NaN
-Bananas                       0           5   ...     74.91     0.15
-Carrots, Organic              0          33   ...     88.29     0.24
-Cauliflower                   0          22   ...     92.07     0.27
-Endive, Red                   0          52   ...     93.79     0.79
-Figs, black mission         NaN         150   ...       NaN      NaN
-Leeks, Organic                0          59   ...     83.00     0.12
-Lettuce, Little Gem         NaN          24   ...       NaN      NaN
-Mushrooms, King Oyster      NaN           0   ...       NaN      NaN
-Onion, yellow               NaN          27   ...       NaN      NaN
-Orange juice                NaN           8   ...       NaN      NaN
-Parsnip                       0          36   ...     79.53     0.59
-Potato, marble mix          NaN          14   ...       NaN     0.20
-Rhubarb                       0          86   ...     93.61     0.10
-Potato, russet              NaN          14   ...       NaN      NaN
-Squash, Zucchini              0          16   ...     94.79     0.32
-
-[18 rows x 33 columns]
 
 * Units & Prices
 
