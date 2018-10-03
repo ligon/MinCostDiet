@@ -33,8 +33,6 @@ kilo-calories, 46 grams of protein, and  28 grams of fiber per day,
 but  less than 23 grams of sodium.  
 
 
-
-
 * Inputs                                                           :noexport:
 
 ** Dietary Guidelines
