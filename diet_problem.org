@@ -10,7 +10,7 @@
   https://ndb.nal.usda.gov/ndb/doc/index.   You'll need to sign up for a
   free api key (see directions on page), then supply that key here:
 
-#+begin_src python :session :tangle food_prices.py :results silent
+#+begin_src python :session :tangle diet_problem.py :results silent
   apikey = "inIyO1begWSRqsYtxS7m6p09PSyq7Qiw7fxzV2qN"
 #+end_src
 
@@ -66,7 +66,7 @@ which case we may need to define our  own units (see the example of
 And here's a little code to help look up NDB codes for foods of
 different descriptions.
 
-#+begin_src python :results output :session :tangle food_prices.py 
+#+begin_src python :results output :session :tangle diet_problem.py 
 import ndb
 
 ndb.ndb_search(apikey,"Great Value Buttermilk Pancakes")
@@ -82,13 +82,13 @@ that file in the [[./Data/]] directory.  These files should have the same
 columns and format as the example above.  Then add them to the list
 below.
 
-#+begin_src python :session :tangle food_prices.py
+#+begin_src python :session :tangle diet_problem.py
 CSVs = ["./Data/ligons_shopping.csv"]
 #+end_src
 
 #+results:
 
-#+begin_src python :session :tangle food_prices.py
+#+begin_src python :session :tangle diet_problem.py
   import ndb
   import pandas as pd
 
@@ -119,7 +119,7 @@ for many different units, using the =python= [[https://pint.readthedocs.io/en/la
 [[file:Data/food_units.txt][./Data/food_units.txt]] can be edited to deal with odd cases such as
 donuts, using a format described in the =pint= [[https://pint.readthedocs.io/en/latest/defining.html][documentation]]. 
 
-#+begin_src python :results output raw :session :tangle food_prices.py 
+#+begin_src python :results output raw :session :tangle diet_problem.py 
 # Convert food quantities to NDB units
 df['NDB Quantity'] = df[['Quantity','Units']].T.apply(lambda x : ndb.ndb_units(x['Quantity'],x['Units']))
 
@@ -221,14 +221,14 @@ up.  We can't use these without some additional work.
 | Selenium, mcg         | RDA    |    20 |    30 |    30 |     40 |     40 |      55 |      55 |      55 |      55 |      55 |      55 |    55 |    55 |
 | Choline, mg           | AI     |   200 |   250 |   250 |    375 |    375 |     400 |     550 |     425 |     550 |     425 |     550 |   425 |   550 |
 
-  - Notes on Source :: RDA = Recommended Dietary Allowance, AI =
-       Adequate Intake, UL = Tolerable Upper Intake Level, AMDR =
-       Acceptable Macronutrient Distribution Range, DGA = 2015-2020
-       Dietary Guidelines recommended limit; 14 g fiber per 1,000 kcal
-       = basis for AI for fiber. 
+  - Notes on Source :: In each of these tables, RDA = Recommended
+       Dietary Allowance, AI = Adequate Intake, UL = Tolerable Upper
+       Intake Level, AMDR = Acceptable Macronutrient Distribution
+       Range, DGA = 2015-2020 Dietary Guidelines recommended limit; 14
+       g fiber per 1,000 kcal = basis for AI for fiber.
 
 
-#+begin_src python :results output raw :session :tangle food_prices.py 
+#+begin_src python :results output raw :session :tangle diet_problem.py 
 # Choose sex/age group:
 group = "M 51+"
 
@@ -242,7 +242,7 @@ bmax = pd.read_csv('./diet_maximums.csv').set_index('Nutrition')[group]
 * Putting it together
 
 
-#+begin_src python :results output raw :session :tangle food_prices.py 
+#+begin_src python :results output raw :session :tangle diet_problem.py 
 from  scipy.optimize import linprog as lp
 import numpy as np
 
