@@ -241,6 +241,8 @@ bmax = pd.read_csv('./diet_maximums.csv').set_index('Nutrition')[group]
 #+end_src
 * Putting it together
 
+Here we take the different pieces of the puzzle we've developed and
+put them together in the form of a linear program we can solve.
 
 #+begin_src python :results output raw :session :tangle diet_problem.py 
 from  scipy.optimize import linprog as lp
