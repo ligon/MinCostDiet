@@ -4,6 +4,7 @@
   We need some particular versions of the following modules;
 #+begin_src python :session :results silent
 !pip install "numpy>=1.15.0" "scipy>=1.1.0" pint
+!pip install gsheets
 #+end_src
 
 * USDA Nutrition DataBase
@@ -79,7 +80,14 @@ ndb.ndb_search(apikey,"Great Value Buttermilk Pancakes")
 #+end_src
 
 
-* Nutritional information
+
+* Price information
+
+The code below allows us to collect data on different kinds of food
+with their prices from two different sources: =csv= files in the
+directory [[./Data/]] or from google spreadsheets.
+
+** Local =csv= files
 
 Information on prices for different goods is found in a collection of
 =csv= files in [[./Data/]].  You can generate additional files by using a
@@ -89,19 +97,46 @@ columns and format as the example above.  Then add them to the list
 below.
 
 #+begin_src python :session :tangle diet_problem.py
-CSVs = ["./Data/ligons_shopping.csv"]
+CSVs = ["./Data/ligons_shopping.csv"  # Some food Ligon bought.
+       ]
+
 #+end_src
 
-#+results:
+** Using data from Google Sheets
+
+Alternatively, rather than creating & uploading =csv= files we can
+also supply code to find files over the internet.  Here we supply code
+which allows one to input data on prices in a format similar to that
+above (i.e., a spreadsheet with seven columns, labeled Food, Quantity,
+Units, Price, Date, Location, and NDB).
+
+Using google sheets in this way requires you establish some
+credentials.   Follow Step 1 in [[https://developers.google.com/sheets/api/quickstart/python#step_1_turn_on_the_api_name][Turn on the API]].
+
+#+begin_src python :session :tangle diet_problem.py
+# ID of sheet and name of worksheet for google sheets
+SHEETs = [("1ObK5N_5aVXzVHE7ZXWBg0kQvPS3k1enRwsUjhytwh5A","Table 2"), # Stigler's foods, modern prices
+          ("1lLYF32eG2hVi2OQgEFH5hZfAjHYOKP8mmDjMYiCMubs","Sheet1")   # Nidhi Menon's groceries
+         ]
+#+end_src
+
+** Compile data on food prices
 
 #+begin_src python :session :tangle diet_problem.py
   import ndb
   import pandas as pd
   import warnings
+  from gsheets import Sheets
 
   DFs = []
   for csv in CSVs:
     DFs.append(pd.read_csv(csv,dtype=str))
+
+  if len(SHEETs):
+      sheets = Sheets.from_files('./credentials.json', './storage.json')
+      for SPREADSHEET_ID, RANGE_NAME in SHEETs:
+         s = sheets[SPREADSHEET_ID].find(RANGE_NAME).to_frame()
+         DFs.append(s)
 
   df = pd.concat(DFs,ignore_index=True)
   # Some columns which ought to be numeric are actually str; convert them
@@ -260,6 +295,8 @@ put them together in the form of a linear program we can solve.
 from  scipy.optimize import linprog as lp
 import numpy as np
 
+tol = 1e-6 # Numbers in solution smaller than this (in absolute value) treated as zeros
+
 c = Prices.apply(lambda x:x.magnitude).dropna()
 
 # Compile list that we have both prices and nutritional info for; drop if either missing
@@ -288,7 +325,7 @@ diet = pd.Series(result.x,index=c.index)
 
 print("Cost of diet for %s is $%4.2f per day." % (group,result.fun))
 print("\nYou'll be eating (in 100s of g/ml):")
-print(diet[diet>1e-7])  # Drop items with quantities less than precision of calculation.
+print(diet[diet >= tol])  # Drop items with quantities less than precision of calculation.
 
 tab = pd.DataFrame({"Outcome":np.abs(A).dot(diet),"Recommendation":np.abs(b)})
 print("\nWith the following nutritional outcomes of interest:")
@@ -296,7 +333,7 @@ print(tab)
 
 print("\nConstraining nutrients are:")
 excess = tab.diff(axis=1).iloc[:,1]
-print(excess.loc[np.abs(excess)<1e-7].index.tolist())
+print(excess.loc[np.abs(excess) < tol].index.tolist())
 
 #+end_src
   
