@@ -3,7 +3,7 @@
 * Preface
   We need some particular versions of the following modules;
 #+begin_src python :session :results silent
-!pip install "numpy>=1.15.0" "scipy>=1.1.0" pint
+!pip install -r requirements.txt
 !pip install gsheets
 #+end_src
 
