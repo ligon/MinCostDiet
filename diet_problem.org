@@ -120,6 +120,8 @@ credentials.   Follow Step 1 in [[https://developers.google.com/sheets/api/quick
 SHEETs = [("1ObK5N_5aVXzVHE7ZXWBg0kQvPS3k1enRwsUjhytwh5A","Table 2"), # Stigler's foods, modern prices
           ("1lLYF32eG2hVi2OQgEFH5hZfAjHYOKP8mmDjMYiCMubs","Sheet1")   # Nidhi Menon's groceries
          ]
+
+SHEETs = []
 #+end_src
 
 ** Compile data on food prices
@@ -134,13 +136,16 @@ SHEETs = [("1ObK5N_5aVXzVHE7ZXWBg0kQvPS3k1enRwsUjhytwh5A","Table 2"), # Stigler'
   for csv in CSVs:
     DFs.append(pd.read_csv(csv,dtype=str))
 
-  if len(SHEETs):
-      sheets = Sheets.from_files('./credentials.json', './storage.json')
-      for SPREADSHEET_ID, RANGE_NAME in SHEETs:
-         s = sheets[SPREADSHEET_ID].find(RANGE_NAME).to_frame()
-         DFs.append(s)
+  try:
+      if len(SHEETs):
+          sheets = Sheets.from_files('./credentials.json', './storage.json')
+          for SPREADSHEET_ID, RANGE_NAME in SHEETs:
+             s = sheets[SPREADSHEET_ID].find(RANGE_NAME).to_frame()
+             DFs.append(s)
+  except NameError: # SHEETS not defined?
+      pass
 
-  df = pd.concat(DFs,ignore_index=True)
+  df = pd.concat(DFs,ignore_index=True,sort=False)
   # Some columns which ought to be numeric are actually str; convert them
   df['Price'] = df['Price'].astype(float)
   df['Quantity'] = df['Quantity'].astype(float)

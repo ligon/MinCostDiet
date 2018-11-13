@@ -1,25 +1,11 @@
-Name,Quantity,Units,Price,Date,Location,NDB
-Bengalgram dhal    ,1.25,lb,3.19,[2018-11-05 Monday],NorthBay Trading Co,45262245
-Ceremonial expenses    ,,,,,,
-Chillies ,36,oz,24.49,[2018-11-05 Monday],Amazon,2076
-Clothing  ,,,,,,
-Coconut ,1,lb,5.99,[2018-11-05 Monday],nuts.com,12104
-Complete meals in hotel,,,,,,
-Cosmetics tooth paste etc. ,,,,,,
-"Educational material expenses (pen, books, paper, etc.)",,,,,,
-Grinding/milling charges     ,,,,,,
-Gur (jaggery)     ,1,lb,3.63,[2018-11-05 Monday],Udupi Jaggery Powder,45352013
-Jowar/Sorghum (Local variety)  ,1,lb,3.99,[2018-11-05 Monday],nuts.com,45181056
-Medicine Doctor's fees  ,,,,,,
-Milk ,1,gal,1.98,[2018-11-05 Monday],Target,45226447
-Onion ,10,lbs,6.99,[2018-11-05 Monday],loblaws.ca,11282
-Other spices ,,,,,,
-Other vegetables ,,,,,,
-"Pan, betel, etc. ",,,,,,
-Redgram dhal  ,2,lbs,3.88,[2019-10-15 Monday],jet.com,16402
-"Soap, washing powder  ",,,,,,
+Food,Quantity,Units,Price,Date,Location,NDB
+Bengalgram dhal,1.25,lb,3.19,[2018-11-05 Monday],NorthBay Trading Co,45262245
+Chillies,36,oz,24.49,[2018-11-05 Monday],Amazon,2076
+Coconut,1,lb,5.99,[2018-11-05 Monday],nuts.com,12104
+Gur (jaggery)  ,1,lb,3.63,[2018-11-05 Monday],Udupi Jaggery Powder,45352013
+Jowar/Sorghum (Local variety),1,lb,3.99,[2018-11-05 Monday],nuts.com,45181056
+Milk,1,gal,1.98,[2018-11-05 Monday],Target,45226447
+Onion,10,lbs,6.99,[2018-11-05 Monday],loblaws.ca,11282
+Redgram dhal,2,lbs,3.88,[2019-10-15 Monday],jet.com,16402
 Sugar,4,lbs,2.39,[2019-10-15 Monday],Target,19336
-Tea     ,100,ea,3.69,[2018-11-05 Monday],Target,45218047
-"Tobacco, beedi ",,,,,,
-Travel & Entertainment ,,,,,,
-Utilities   ,,,,,,
+Tea,100,tea_bag,3.69,[2018-11-05 Monday],Target,45218047
