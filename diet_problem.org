@@ -4,8 +4,6 @@
   We need some particular versions of the following modules;
 #+begin_src python :session :results silent
 !pip install -r requirements.txt
-!pip install gsheets
-!pip install gspread
 #+end_src
 
 * USDA Nutrition DataBase
@@ -99,10 +97,11 @@ below.
 
 #+begin_src python :session :tangle diet_problem.py
 CSVs = ["./Data/ligons_shopping.csv",  # Some food Ligon bought.
-        "./Data/icrisat_foods.csv",    # Prices for food consumed in Indian ICRISAT villages
+        "./Data/icrisat_foods.csv"    # Prices for food consumed in Indian ICRISAT villages
        ]
-
 #+end_src
+
+#+results:
 
 ** Using data from Google Sheets
 
@@ -116,13 +115,15 @@ Using google sheets in this way requires you establish some
 credentials.   Follow Step 1 in [[https://developers.google.com/sheets/api/quickstart/python#step_1_turn_on_the_api_name][Turn on the API]].
 
 #+begin_src python :session :tangle diet_problem.py
-# ID of sheet and name of worksheet for google sheets
-SHEETs = [("1ObK5N_5aVXzVHE7ZXWBg0kQvPS3k1enRwsUjhytwh5A","Table 2"), # Stigler's foods, modern prices
-          ("1lLYF32eG2hVi2OQgEFH5hZfAjHYOKP8mmDjMYiCMubs","Sheet1")   # Nidhi Menon's groceries
+# ID of sheet and name of worksheet for google sheets.   
+# These must be public!  
+SHEETs = [("1ra1APq6K-DVRn6tHzXzxBaa49US6t7JpmYYpDaUYN9c",""),        # Ligon's shopping list
+          ("1ObK5N_5aVXzVHE7ZXWBg0kQvPS3k1enRwsUjhytwh5A","Table 2"), # Stigler's foods, modern prices
+         # ("1lLYF32eG2hVi2OQgEFH5hZfAjHYOKP8mmDjMYiCMubs","Sheet1")   # Nidhi Menon's groceries
          ]
-
-SHEETs = []
 #+end_src
+
+#+results:
 
 ** Compile data on food prices
 
@@ -130,7 +131,6 @@ SHEETs = []
   import ndb
   import pandas as pd
   import warnings
-  from gsheets import Sheets
 
   DFs = []
   for csv in CSVs:
@@ -138,10 +138,12 @@ SHEETs = []
 
   try:
       if len(SHEETs):
-          sheets = Sheets.from_files('./credentials.json', './storage.json')
-          for SPREADSHEET_ID, RANGE_NAME in SHEETs:
-             s = sheets[SPREADSHEET_ID].find(RANGE_NAME).to_frame()
-             DFs.append(s)
+          for ID, RANGE_NAME in SHEETs:
+             try:
+                 DFs.append(pd.read_csv("https://docs.google.com/spreadsheet/ccc?key=%s&output=csv" % ID))
+             except ParserError:
+                 warnings.warn("Can't read sheet at https://docs.google.com/spreadsheets/d/%s.\n
+                                Check Sharing settings, so that anyone with link can view?" % ID)
   except NameError: # SHEETS not defined?
       pass
 
@@ -164,6 +166,8 @@ SHEETs = []
   print(D.index)
 
 #+end_src
+
+#+results:
 
 
 * Units & Prices
@@ -215,7 +219,7 @@ of protein per day.
 | Iron, Fe                       | RDA    |     7 |    10 |    10 |      8 |      8 |      15 |      11 |      18 |       8 |      18 |       8 |     8 |     8 |
 | Magnesium, Mg                  | RDA    |    80 |   130 |   130 |    240 |    240 |     360 |     410 |     310 |     400 |     320 |     420 |   320 |   420 |
 | Niacin                         | RDA    |     6 |     8 |     8 |     12 |     12 |      14 |      16 |      14 |      16 |      14 |      16 |    14 |    16 |
-| Phosphorus, P                  | RDA    |   460 |   500 |   500 |  1,250 |  1,250 |   1,250 |   1,250 |     700 |     700 |     700 |     700 |   700 |   700 |
+| Phosphorus, P                  | RDA    |   460 |   500 |   500 |  1250  |  1250  |   1250 |   1250 |     700 |     700 |     700 |     700 |   700 |   700 |
 | Potassium, K                   | AI     |  3000 |  3800 |  3800 |   4500 |   4500 |    4700 |    4700 |    4700 |    4700 |    4700 |    4700 |  4700 |  4700 |
 | Riboflavin                     | RDA    |   0.5 |   0.6 |   0.6 |    0.9 |    0.9 |       1 |     1.3 |     1.1 |     1.3 |     1.1 |     1.3 |   1.1 |   1.3 |
 | Thiamin                        | RDA    |   0.5 |   0.6 |   0.6 |    0.9 |    0.9 |       1 |     1.2 |     1.1 |     1.2 |     1.1 |     1.2 |   1.1 |   1.2 |
@@ -331,7 +335,7 @@ result = lp(c, A, b, method='interior-point')
 diet = pd.Series(result.x,index=c.index)
 
 print("Cost of diet for %s is $%4.2f per day." % (group,result.fun))
-print("\nYou'll be eating (in 100s of g/ml):")
+print("\nYou'll be eating (in 100s of grams or milliliters):")
 print(diet[diet >= tol])  # Drop items with quantities less than precision of calculation.
 
 tab = pd.DataFrame({"Outcome":np.abs(A).dot(diet),"Recommendation":np.abs(b)})
