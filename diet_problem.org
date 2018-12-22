@@ -123,7 +123,10 @@ SHEETs = [("1ra1APq6K-DVRn6tHzXzxBaa49US6t7JpmYYpDaUYN9c",""),        # Ligon's 
          ]
 #+end_src
 
-#+results:
+*************** TODO See =pydrive= for way to manage authentication
+    https://gsuitedevs.github.io/PyDrive/docs/build/html/oauth.html#sample-settings-yaml
+*************** END
+
 
 ** Compile data on food prices
 
