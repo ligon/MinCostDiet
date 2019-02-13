@@ -6,6 +6,11 @@
 !pip install -r requirements.txt
 #+end_src
 
+  Add a string for your username here:
+  #+begin_src python
+user = "ligon"
+  #+end_src
+
 * USDA Nutrition DataBase
 
   The USDA maintains a database of nutritional information, where
@@ -14,10 +19,10 @@
 
   To look up nutritional information, use api provided by the USDA at
   https://ndb.nal.usda.gov/ndb/doc/index.   You'll need to sign up for a
-  free api key (see directions on page), then supply that key here:
+  free api key (see directions on page), then add that key here:
 
 #+begin_src python :session :tangle diet_problem.py :results silent
-  apikey = "inIyO1begWSRqsYtxS7m6p09PSyq7Qiw7fxzV2qN"
+  apikey = {'ligon':"inIyO1begWSRqsYtxS7m6p09PSyq7Qiw7fxzV2qN"}
 #+end_src
 
 * Data on Prices
@@ -75,7 +80,7 @@ different descriptions.
 #+begin_src python :results output :session :tangle diet_problem.py 
 import ndb
 
-ndb.ndb_search(apikey,"Great Value Buttermilk Pancakes")
+ndb.ndb_search(apikey[user],"Great Value Buttermilk Pancakes")
 #+end_src
 
 
@@ -159,7 +164,7 @@ SHEETs = [("1ra1APq6K-DVRn6tHzXzxBaa49US6t7JpmYYpDaUYN9c",""),        # Ligon's 
   for food in  df.Food.tolist():
       try:
           NDB = df.loc[df.Food==food,:].NDB
-          D[food] = ndb.ndb_report(apikey,NDB).Quantity
+          D[food] = ndb.ndb_report(apikey[user],NDB).Quantity
       except AttributeError: 
           warnings.warn("Couldn't find NDB Code %s for food %s." % (food,NDB))
           
