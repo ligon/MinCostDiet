@@ -101,7 +101,7 @@ columns and format as the example above.  Then add them to the list
 below.
 
 #+begin_src python :session :tangle diet_problem.py
-CSVs = ["./Data/ligons_shopping.csv",  # Some food Ligon bought.
+CSVs = [
         "./Data/icrisat_foods.csv"    # Prices for food consumed in Indian ICRISAT villages
        ]
 #+end_src
@@ -121,10 +121,9 @@ credentials.   Follow Step 1 in [[https://developers.google.com/sheets/api/quick
 
 #+begin_src python :session :tangle diet_problem.py
 # ID of sheet and name of worksheet for google sheets.   
-# These must be public!  
+# These must be public (until we work out google oauth)
 SHEETs = [("1ra1APq6K-DVRn6tHzXzxBaa49US6t7JpmYYpDaUYN9c",""),        # Ligon's shopping list
           ("1ObK5N_5aVXzVHE7ZXWBg0kQvPS3k1enRwsUjhytwh5A","Table 2"), # Stigler's foods, modern prices
-         # ("1lLYF32eG2hVi2OQgEFH5hZfAjHYOKP8mmDjMYiCMubs","Sheet1")   # Nidhi Menon's groceries
          ]
 #+end_src
 

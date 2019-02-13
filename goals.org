@@ -1,0 +1,110 @@
+#+Title: Minimum Cost Diet Project
+#+Author: Ethan Ligon
+#+EPRESENT_FRAME_LEVEL: 3
+#+OPTIONS: toc:nil pri:t
+
+With a growing world population, everybody's gotta eat.  The idea of
+this project is to characterize /subsistence/ diets which deliver
+adequate nutrition.  Formally, we're looking for the /minimum cost
+diets/ for people of different types which nevertheless satisfy a set
+of dietary requirements.
+
+* Deliverables
+  We'll start this project with a working prototype, for you to
+  explore improving and exploring.
+
+   - A :: These deliverables are
+          /required/.  Note that other
+          deliverables may rely on
+          completion of A deliverables.
+   - B :: These deliverables are /very
+          desirable/.
+   - C :: These deliverables would be
+          /nice to have/.
+
+** [#A] Description of population of interest
+   This may be the most important decision you have to make.  The
+   minimum cost diet for vegan students in Berkeley will almost certainly be
+   different from the minimum cost diet for rural villagers in India. 
+
+   What population are you interested in?  Contrasts may also be
+   interesting.  Some examples:
+
+   - Vegans vs. omnivores in Berkeley 
+   - Refugees in Uganda
+   - The world population
+   - People who eat only at McDonalds
+   - Americans in 1950 vs. Americans today
+   - The Indian population (perhaps accounting for dietary
+     restrictions related to religion)
+
+** [#A] Data on prices for different foods
+   Construct a google spreadsheet of different prices of different
+   kinds of food.  The different foods should be keyed to the USDA's
+   /Food Composition Databases/
+   (https://ndb.nal.usda.gov/ndb/search/list).
+
+   The foods and prices you use will vary depending on context and the
+   particular population of people you're concerned with.  For
+   example, if you're concerned with people who eat only at McDonald's,
+   you'll want prices and nutritional information for the McDonald's
+   menu.  If you want to think of minimum cost organic diet, you
+   should consider a wide range of different organic foods.
+
+** [#A] Nutritional content of different foods
+   For all the foods you're considering you'll need to be able to
+   describe their nutritional content, in terms that allow you to
+   compare with recommended daily allowances.  We'll provide pointers
+   to US government recommendations, but many other countries have
+   their own recommendations, which may be better suited to their
+   populations.
+
+** [#A] Solution
+   What is the minimum cost diet for the population you're concerned
+   with?  How much does it cost, and of what does it consist?  How
+   does it vary with age, sex, and level of activity?
+
+** [#B] Is your solution edible?
+   Turn your minimum cost diet into a meal.  Make enough for the whole
+   class.  If making your diet palatable requires adding additional
+   ingredients (e.g., salt or other spices) be sure to document this
+   and account for it in the overall cost. 
+
+   Whose meal is least costly?  Whose is most tasty?
+
+** [#C] Sensitivity of Solution
+   In general, your solution will depend on relative prices of
+   different kinds of food.  And these prices can be quite volatile;
+   for example, the prices of fresh fruits and vegetables usually
+   exhibit a great deal of seasonal variation.  If the price of a
+   particular kind of food increases by x%, how much does price of
+   diet change, and how does the composition of the diet change?  
+
+   Try and find an nice way to visualize these changes. 
+
+** [#B] What is total cost for population of interest?
+
+   You've been interested in a particular population.  It is likely to
+   consist of people of different sexes, ages, and levels of
+   activity.   How much food would be required to feed the entire
+   population of interest?  At what cost?  (You may want to go back to
+   the Population Project and look at counts of people by age and sex
+   for different countries).
+
+** [#B] Code Review
+   After you've completed writing all your code, have someone outside
+   your group review your code.  The most basic review will just verify
+   that someone else can run your code, but will also usually involve
+   reading over the code, identifying bugs, suggesting design
+   improvements, etc.  You can document the review by asking the
+   reviewer to use =github.com= Issues.
+
+** [#A] Presentation
+
+   Each group will be responsible for giving a 12 minute demonstration
+   of the work they've accomplished during the sprint.  Be creative!
+   Think of awesome new ways to help others visualize what you've
+   learned. 
+
+
+
