@@ -1,7 +1,21 @@
+#+OPTIONS: ':t *:t -:t ::t <:t H:3 \n:nil ^:{} arch:headline author:t
+#+OPTIONS: broken-links:nil c:nil creator:nil d:(not "LOGBOOK")
+#+OPTIONS: date:t e:t email:nil f:t inline:t num:t p:nil pri:nil
+#+OPTIONS: prop:nil stat:t tags:t tasks:t tex:t timestamp:t title:t
+#+OPTIONS: toc:nil todo:t |:t
+#+TITLE: The Minimum Cost Diet Problem
+#+DATE: February 16, 2019
+#+AUTHOR: Ethan Ligon
+#+EMAIL: ligon@berkeley.edu
+#+LANGUAGE: en
+#+SELECT_TAGS: export
+#+EXCLUDE_TAGS: noexport
+#+CREATOR: Emacs 25.1.1 (Org mode 9.2)
+
 * Introduction
 The idea of this project is to solve the problem of finding the
 minimum cost diet satisfying a set of "Recommended Daily Allowances"
-(RDAs) for a particular set of nutrients.
+(RDAs) for a particular set of nutrients and possible kind of food.
 
 This problem was first "solved" by cite:stigler45 for a set of foods
 and prices and RDA requirements (see cite:dantzig90 for an
@@ -30,8 +44,48 @@ There are various sources of recommendations regarding nutrition.
 These can take the form of either equalities or inequalities.  For
 example, it is recommended that females in their twenties consume 2000
 kilo-calories, 46 grams of protein, and  28 grams of fiber per day,
-but  less than 23 grams of sodium.  
+but  less than 23 grams of sodium.  Then using the matrix notation
+above, we can write these constraints as something like
+\[
+    Nx \geq \underline{b}
+\]
+where $\underline{b}$ is a vector of recommendations about /minimum/ amounts of
+different nutrients.  Similarly, if there are some things we want to
+make sure we eat /less/ of (e.g., mercury, sodium, calories), that can
+be written as a set of linear inequalities
+\[
+    Nx \leq\bar{b},
+\]
+where $\bar{b}$ is a vector of recommendations about /maximum/ amounts
+of different nutrients.  Note that this constraint can /also/ be
+expressed as a greater than constraint by multiplying both sides by $-1$.
 
+Note that if some some nutrients we want exact equalities these can be
+specified by specifying both a greater-than and a less-than
+constraint.
+
+Putting this all together, the linear program to compute the minimum
+cost diet looks like
+\[
+   \min_x p'x 
+\]
+such that
+\[
+   \begin{bmatrix}
+      N\\
+      -N
+   \end{bmatrix}x \geq \begin{bmatrix}
+                        \underline{b}\\
+                        -\bar{b}
+                      \end{bmatrix}.
+\]
+
+Solving problems like this by hand is generally difficult for more
+than a few variables and constraints, but
+numerical software has been developed that can handle large (millions)
+of both variables and constraints.  There are a variety of different
+implementations; the one we'll use in our prototype is part of the
+=scipy.optimize= package.
 
 * Inputs                                                           :noexport:
 
@@ -57,4 +111,4 @@ but  less than 23 grams of sodium.
 
 
 * References
-\printbibliography
+\renewcommand{\refname}{}\printbibliography
