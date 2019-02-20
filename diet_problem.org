@@ -1,3 +1,4 @@
+#+OPTIONS: toc:nil todo:nil
 #+PROPERTY: header-args:python :results output raw  :noweb no-export :exports code
 
 * Preface
@@ -88,25 +89,23 @@ ndb.ndb_search(apikey[user],"Great Value Buttermilk Pancakes")
 * Price information
 
 The code below allows us to collect data on different kinds of food
-with their prices from two different sources: =csv= files in the
-directory [[./Data/]] or from google spreadsheets.
+with their prices from google spreadsheets.
 
-** Local =csv= files
+** COMMENT Local =csv= fileC                                       :noexport:
 
-Information on prices for different goods is found in a collection of
-=csv= files in [[./Data/]].  You can generate additional files by using a
-spreadsheet and exporting to the appropriate file format, then putting
-that file in the [[./Data/]] directory.  These files should have the same
-columns and format as the example above.  Then add them to the list
-below.
+  Information on prices for different goods is found in a collection
+  of =csv= files in [[./Data]].  You can generate additional files by
+  using a spreadsheet and exporting to the appropriate file format,
+  then putting that file in the [[./Data]] directory.  These files should
+  have the same columns and format as the example above.  Then add
+  them to the list below.
 
-#+begin_src ipython :session :tangle diet_problem.py
-CSVs = [
+  #+begin_src ipython :session :tangle diet_problem.py
+  CSVs = [
         "./Data/icrisat_foods.csv"    # Prices for food consumed in Indian ICRISAT villages
        ]
-#+end_src
+  #+end_src
 
-#+results:
 
 ** Using data from Google Sheets
 
@@ -122,67 +121,102 @@ credentials.   Follow Step 1 in [[https://developers.google.com/sheets/api/quick
 #+begin_src ipython :session :tangle diet_problem.py
 # ID of sheet and name of worksheet for google sheets.   
 # These must be public (until we work out google oauth)
-SHEETs = [("1ra1APq6K-DVRn6tHzXzxBaa49US6t7JpmYYpDaUYN9c",""),        # Ligon's shopping list
-          ("1ObK5N_5aVXzVHE7ZXWBg0kQvPS3k1enRwsUjhytwh5A","Table 2"), # Stigler's foods, modern prices
+
+SHEETs = [# Stigler's foods, modern prices
+          ("https://docs.google.com/spreadsheet/ccc?key=1ObK5N_5aVXzVHE7ZXWBg0kQvPS3k1enRwsUjhytwh5A","Table 2"), 
          ]
 #+end_src
-
-*************** TODO See =pydrive= for way to manage authentication
-    https://gsuitedevs.github.io/PyDrive/docs/build/html/oauth.html#sample-settings-yaml
-*************** END
 
 
 ** Compile data on food prices
 
 #+begin_src ipython :session :tangle diet_problem.py
-  import ndb
-  import pandas as pd
-  import warnings
+import ndb
+import pandas as pd
+import warnings
 
-  DFs = []
-  for csv in CSVs:
-    DFs.append(pd.read_csv(csv,dtype=str))
+DFs = []
+#for csv in CSVs:  # Uncomment to use a list of csv files as inputs
+#  DFs.append(pd.read_csv(csv,dtype=str))
 
-  try:
-      if len(SHEETs):
-          for ID, RANGE_NAME in SHEETs:
-             try:
-                 DFs.append(pd.read_csv("https://docs.google.com/spreadsheet/ccc?key=%s&output=csv" % ID))
-             except ParserError:
-                 warnings.warn("Can't read sheet at https://docs.google.com/spreadsheets/d/%s.\n
-                                Check Sharing settings, so that anyone with link can view?" % ID)
-  except NameError: # SHEETS not defined?
-      pass
+try:
+    if len(SHEETs):
+        for ID, RANGE_NAME in SHEETs:
+           try:
+               if "docs.google.com" in ID:
+                   sheet = "%s&output=csv" % ID
+               else:
+                   sheet = "https://docs.google.com/spreadsheet/ccc?key=%s&output=csv" % ID
+               DFs.append(pd.read_csv(sheet))
+           except ParserError:
+               warnings.warn("Can't read sheet at https://docs.google.com/spreadsheets/d/%s.\nCheck Sharing settings, so that anyone with link can view?" % ID)
+except NameError: # SHEETS not defined?
+    pass
 
-  df = pd.concat(DFs,ignore_index=True,sort=False)
-  # Some columns which ought to be numeric are actually str; convert them
-  df['Price'] = df['Price'].astype(float)
-  df['Quantity'] = df['Quantity'].astype(float)
+df = pd.concat(DFs,ignore_index=True,sort=False)
+# Some columns which ought to be numeric are actually str; convert them
+df['Price'] = df['Price'].astype(float)
+df['Quantity'] = df['Quantity'].astype(float)
 
-  D = {}
-  for food in  df.Food.tolist():
-      try:
-          NDB = df.loc[df.Food==food,:].NDB
-          D[food] = ndb.ndb_report(apikey[user],NDB).Quantity
-      except AttributeError: 
-          warnings.warn("Couldn't find NDB Code %s for food %s." % (food,NDB))
-          
-
-  D = pd.DataFrame(D,dtype=float)
-
-  print(D.index)
-
+df
 #+end_src
 
-#+results:
+** Look up nutritional information for foods
+
+Now we have a list of foods with prices.  Do lookups on USDA database
+to get nutritional information.
+
+#+begin_src ipython :session :tangle diet_problem.py
+D = {}
+for food in  df.Food.tolist():
+    try:
+        NDB = df.loc[df.Food==food,:].NDB
+        D[food] = ndb.ndb_report(apikey[user],NDB).Quantity
+    except AttributeError: 
+        warnings.warn("Couldn't find NDB Code %s for food %s." % (food,NDB))
+        
+
+D = pd.DataFrame(D,dtype=float)
+
+D
+#+end_src
 
 
 * Units & Prices
+
+Now, the prices we observe can be for lots of different quantities and
+units.  The NDB database basically wants everything in either hundreds
+of grams (hectograms) or hundreds of milliliters (deciliters).  
+
+Sometimes this conversion is simple; if the price we observe is for
+something that weighs two kilograms, that's just 20 hectograms.
+Different systems of weights and volumes are also easy; a five pound
+bag of flour is approximately 22.68 hectograms.  
+
+Othertimes things are more complicated.  If you observe the price of a
+dozen donuts, that needs to be converted to hectograms, for example.  
 
 A function =ndb_units= in the [[file:ndb.py::from%20urllib.request%20import%20Request,%20urlopen][ndb]] module accomplishes this conversion
 for many different units, using the =python= [[https://pint.readthedocs.io/en/latest/][pint module]].  A file
 [[file:Data/food_units.txt][./Data/food_units.txt]] can be edited to deal with odd cases such as
 donuts, using a format described in the =pint= [[https://pint.readthedocs.io/en/latest/defining.html][documentation]]. 
+
+Here's an example of the usage of =ndb.ndb_units=:
+#+begin_src ipython :results output raw :session :tangle diet_problem.py 
+import ndb
+
+# Try your own quantities and units.
+# If units are missing try adding to ./Data/food_units.txt
+
+print(ndb.ndb_units(5,'lbs'))
+print(ndb.ndb_units(1,'gallon'))
+print(ndb.ndb_units(2,'tea_bag'))
+print(ndb.ndb_units(12,'donut'))
+#+end_src
+
+
+Now, use the =ndb_units= function to convert all foods to either
+deciliters or hectograms, to match NDB database:
 
 #+begin_src ipython :results output raw :session :tangle diet_problem.py 
 # Convert food quantities to NDB units
@@ -196,7 +230,7 @@ df.dropna(how='any') # Drop food with any missing data
 # To use minimum price observed
 Prices = df.groupby('Food')['NDB Price'].min()
 
-print(Prices.head())
+Prices.head()
 #+end_src
 
 * Dietary Requirements
@@ -240,11 +274,10 @@ of protein per day.
 | Vitamin D                      | RDA    |   600 |   600 |   600 |    600 |    600 |     600 |     600 |     600 |     600 |     600 |     600 |  600  |  600  |
 
 #+begin_src ipython :var X=diet_minimums :colnames no :results silent :exports none
-  from cfe.df_utils import orgtbl_to_df, df_to_orgtbl
+from cfe.df_utils import orgtbl_to_df, df_to_orgtbl
 
-  df = orgtbl_to_df(X,dtype=str)
-  df.to_csv('./diet_minimums.csv')
-
+df = orgtbl_to_df(X,dtype=str)
+df.to_csv('./diet_minimums.csv')
 #+end_src
 
 This next table specifies /maximum/ quantities.  Our 20 year-old
@@ -260,11 +293,10 @@ as we might do if we were trying to lose weight.
 | Energy     | ---    |  1500 |  1600 |  1800 |   2000 |   2200 |    2200 |    2500 |    2400 |    2600 |    2200 |    2400 |  1800 |  2400 |
 
 #+begin_src ipython :var X=diet_maximums :colnames no :results silent :exports none
-  from cfe.df_utils import orgtbl_to_df, df_to_orgtbl
+from cfe.df_utils import orgtbl_to_df, df_to_orgtbl
 
-  df = orgtbl_to_df(X,dtype=str)
-  df.to_csv('./diet_maximums.csv')
-
+df = orgtbl_to_df(X,dtype=str)
+df.to_csv('./diet_maximums.csv')
 #+end_src
 
 Finally, we have some odd constraints given in this final table.
@@ -295,15 +327,15 @@ up.  We can't use these without some additional work.
 
 #+begin_src ipython :results output raw :session :tangle diet_problem.py 
 # Choose sex/age group:
-group = "M 51+"
+group = "F 19-30"
 
 # Define *minimums*
 bmin = pd.read_csv('./diet_minimums.csv').set_index('Nutrition')[group]
 
 # Define *maximums*
 bmax = pd.read_csv('./diet_maximums.csv').set_index('Nutrition')[group]
-
 #+end_src
+
 * Putting it together
 
 Here we take the different pieces of the puzzle we've developed and

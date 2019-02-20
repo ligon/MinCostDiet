@@ -1,6 +1,6 @@
 Food,Quantity,Units,Price,Date,Location,NDB
 Bengalgram dhal,1.25,lb,3.19,[2018-11-05 Monday],NorthBay Trading Co,45262245
-Chillies,36,oz,24.49,[2018-11-05 Monday],Amazon,2076
+Chillies,36,oz,24.49,[2018-11-05 Monday],Amazon,"02076"
 Coconut,1,lb,5.99,[2018-11-05 Monday],nuts.com,12104
 Gur (jaggery)  ,1,lb,3.63,[2018-11-05 Monday],Udupi Jaggery Powder,45352013
 Jowar/Sorghum (Local variety),1,lb,3.99,[2018-11-05 Monday],nuts.com,45181056
