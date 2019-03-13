@@ -17,12 +17,20 @@ The idea of this project is to solve the problem of finding the
 minimum cost diet satisfying a set of "Recommended Daily Allowances"
 (RDAs) for a particular set of nutrients and possible kind of food.
 
+** History 
 This problem was first "solved" by cite:stigler45 for a set of foods
 and prices and RDA requirements (see cite:dantzig90 for an
 entertaining discussion of what "solved" meant in that context).
 Times have changed: the variety of different kinds of food, food
 prices, and RDA requirements are all quite different from what they
 were for our grandparents.
+
+** Dietary Guidelines
+   A compilation of dietary guidelines are provided at
+   https://health.gov/dietaryguidelines/2015/guidelines/appendix-7/;
+   these provide recommended levels of 31 different nutrients by age
+   and sex. 
+
 
 * The Model
  
@@ -111,4 +119,4 @@ implementations; the one we'll use in our prototype is part of the
 
 
 * References
-\renewcommand{\refname}{}\printbibliography
+#+LATEX: \renewcommand{\refname}{}\printbibliography
