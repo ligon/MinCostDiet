@@ -42,7 +42,7 @@ of dietary requirements.
    Construct a google spreadsheet of different prices of different
    kinds of food.  The different foods should be keyed to the USDA's
    /Food Composition Databases/
-   (https://ndb.nal.usda.gov/ndb/search/list).
+   (https://fdc.nal.usda.gov/).
 
    The foods and prices you use will vary depending on context and the
    particular population of people you're concerned with.  For
