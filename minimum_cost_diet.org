@@ -100,21 +100,21 @@ implementations; the one we'll use in our prototype is part of the
 
 ** Dietary Guidelines
    A compilation of dietary guidelines are provided at
-   https://health.gov/dietaryguidelines/2015/guidelines/appendix-7/;
+   https://www.dietaryguidelines.gov/sites/default/files/2019-05/2015-2020_Dietary_Guidelines.pdf;
    these provide recommended levels of 31 different nutrients by age
-   and sex. 
+   and sex.
 
 ** Nutritional content of different kinds of food
 
    A source for nutritional information for different kinds of food is
    provided by the USDA.   
 
-   Note that USDA dataset uses "NDB" codes to identify different
-   kinds of foods; can also map NDB -> UPC for many (mostly processed) foods.
-      - https://ndb.nal.usda.gov/ndb/search/list;
-      - here's documentation of the api: https://ndb.nal.usda.gov/ndb/doc/index
+   Note that USDA dataset uses "FDC" codes to identify different
+   kinds of foods; can also map FDC -> UPC for many (mostly processed) foods.
+      - https://fdc.nal.usda.gov/;
+      - here's documentation of the api:https://fdc.nal.usda.gov/api-guide.html
       - Here's the actual data:
-          https://www.ars.usda.gov/northeast-area/beltsville-md/beltsville-human-nutrition-research-center/nutrient-data-laboratory/docs/sr28-download-files/
+         https://fdc.nal.usda.gov/download-datasets.html
 
 ** Food prices 
 

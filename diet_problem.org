@@ -12,14 +12,14 @@
 user = "ligon"
   #+end_src
 
-* USDA Nutrition DataBase
+* USDA Food Central DataBase
 
   The USDA maintains a database of nutritional information, where
-  different kinds of food are identified by an NDB number.  They do
+  different kinds of food are identified by an FDC number.  They do
   not provide any data on prices.  
 
   To look up nutritional information, use api provided by the USDA at
-  https://ndb.nal.usda.gov/ndb/doc/index.   You'll need to sign up for a
+  https://fdc.nal.usda.gov/.   You'll need to sign up for a
   free api key (see directions on page), then add that key here:
 
 #+begin_src ipython :session :tangle diet_problem.py :results silent
@@ -29,15 +29,14 @@ user = "ligon"
 * Data on Prices
 
 Here's an effort to describe some different kinds of food, along with
-data on food prices.  This is all just based on my last trip to the
-grocery store, except that I've used the USDA database to look up NDB
-numbers.  Note that one may need to protect leading zeros with "" for
-the NDB numbers.
+data on food prices.  This is all just based on a trip I took to the
+grocery store, except that I've used the USDA database to look up FDC
+numbers.  
 
 Also note that some kinds of foods need to have unit weights (in
 grams) supplied under "Units"; e.g., extra large eggs are taken to
 each weigh 56g.  These conversions can also often be found on the USDA
-NDB website.  Othertimes not---I still need to weigh a crumpet.
+FDC website.  Othertimes not---I still need to weigh a crumpet.
 
 Food is purchased in particular units (gallons, pounds, grams).  And
 in some cases the natural units are things like donuts or eggs, in
@@ -46,42 +45,41 @@ which case we may need to define our  own units (see the example of
 
 
 #+name: food_prices
-| Food                   | Quantity | Units   | Price | Date             | Location                  |      NDB |
-|------------------------+----------+---------+-------+------------------+---------------------------+----------|
-| Milk, 2% fat           |        1 | gallon  |  4.99 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45226447 |
-| Eggs, extra large      |       12 | xl_egg  |  3.59 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45208918 |
-| Crumpets               |        6 | crumpet |  3.19 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45324369 |
-| Bananas                |        1 | pound   |  3.15 | [2019-09-14 Sat] | Monterey Market, Berkeley |  "09040" |
-| Carrots, Organic       |        2 | pound   |  2.29 | [2019-09-14 Sat] | Monterey Market, Berkeley |    11124 |
-| Cauliflower            |     2.51 | pound   |  4.24 | [2019-09-14 Sat] | Monterey Market, Berkeley |    11135 |
-| Endive, Red            |     1.26 | pound   |  6.27 | [2019-09-14 Sat] | Monterey Market, Berkeley |    11213 |
-| Figs, black mission    |        1 | pound   |  4.98 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45170327 |
-| Leeks, Organic         |        1 | pound   |  1.29 | [2019-09-14 Sat] | Monterey Market, Berkeley |    11246 |
-| Lettuce, Little Gem    |        1 | pound   |  5.98 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45276886 |
-| Mushrooms, King Oyster |        1 | pound   |    12 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45218868 |
-| Onion, yellow          |        1 | pound   |  0.39 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45339306 |
-| Orange juice           |      0.5 | gallon  |  8.98 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45213207 |
-| Parsnip                |        1 | pound   |  1.98 | [2019-09-14 Sat] | Monterey Market, Berkeley |    11298 |
-| Potato, marble mix     |        1 | pound   |  2.59 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45169597 |
-| Rhubarb                |        1 | pound   |  1.84 | [2019-09-14 Sat] | Monterey Market, Berkeley |  "09307" |
-| Potato, russet         |       10 | pound   |  2.98 | [2019-09-14 Sat] | Monterey Market, Berkeley | 45364251 |
-| Squash, Zucchini       |        1 | pound   |  1.49 | [2019-09-14 Sat] | Monterey Market, Berkeley |    11477 |
+| Food                   | Quantity | Units   | Price | Date             | Location                  |    FDC |
+|------------------------+----------+---------+-------+------------------+---------------------------+--------|
+| Milk, 2% fat           |        1 | gallon  |  4.99 | [2019-09-14 Sat] | Monterey Market, Berkeley | 336075 |
+| Eggs, extra large      |       12 | xl_egg  |  3.59 | [2019-09-14 Sat] | Monterey Market, Berkeley | 747997 |
+| Crumpets               |        6 | crumpet |  3.19 | [2019-09-14 Sat] | Monterey Market, Berkeley | 547313 |
+| Bananas                |        1 | pound   |  3.15 | [2019-09-14 Sat] | Monterey Market, Berkeley | 173944 |
+| Carrots, Organic       |        2 | pound   |  2.29 | [2019-09-14 Sat] | Monterey Market, Berkeley | 170393 |
+| Cauliflower            |     2.51 | pound   |  4.24 | [2019-09-14 Sat] | Monterey Market, Berkeley | 169986 |
+| Endive, Red            |     1.26 | pound   |  6.27 | [2019-09-14 Sat] | Monterey Market, Berkeley | 168412 |
+| Figs, black mission    |        1 | pound   |  4.98 | [2019-09-14 Sat] | Monterey Market, Berkeley | 438223 |
+| Leeks, Organic         |        1 | pound   |  1.29 | [2019-09-14 Sat] | Monterey Market, Berkeley | 169246 |
+| Lettuce, Little Gem    |        1 | pound   |  5.98 | [2019-09-14 Sat] | Monterey Market, Berkeley | 342618 |
+| Mushrooms, King Oyster |        1 | pound   |    12 | [2019-09-14 Sat] | Monterey Market, Berkeley | 342623 |
+| Onion, yellow          |        1 | pound   |  0.39 | [2019-09-14 Sat] | Monterey Market, Berkeley | 170000 |
+| Orange juice           |      0.5 | gallon  |  8.98 | [2019-09-14 Sat] | Monterey Market, Berkeley | 414575 |
+| Parsnip                |        1 | pound   |  1.98 | [2019-09-14 Sat] | Monterey Market, Berkeley | 170417 |
+| Potato, marble mix     |        1 | pound   |  2.59 | [2019-09-14 Sat] | Monterey Market, Berkeley | 170032 |
+| Rhubarb                |        1 | pound   |  1.84 | [2019-09-14 Sat] | Monterey Market, Berkeley | 167758 |
+| Potato, russet         |       10 | pound   |  2.98 | [2019-09-14 Sat] | Monterey Market, Berkeley | 170030 |
+| Squash, Zucchini       |        1 | pound   |  1.49 | [2019-09-14 Sat] | Monterey Market, Berkeley | 169291 |
 
-#+begin_src ipython :var F=food_prices :colnames no :results silent :exports none
-  from cfe.df_utils import orgtbl_to_df, df_to_orgtbl
+#+begin_src python :var F=food_prices :colnames no :results silent :exports none
+from cfe.df_utils import orgtbl_to_df, df_to_orgtbl
 
-  df = orgtbl_to_df(F,dtype=str)
-  df.to_csv('./Data/ligons_shopping.csv')
-
+df = orgtbl_to_df(F,dtype=str)
+df.to_csv('./Data/ligons_shopping.csv')
 #+end_src
 
-And here's a little code to help look up NDB codes for foods of
+And here's a little code to help look up FDC codes for foods of
 different descriptions.
 
 #+begin_src ipython :results output :session :tangle diet_problem.py 
-import ndb
+import fooddatacentral
 
-ndb.ndb_search(apikey[user],"Great Value Buttermilk Pancakes")
+fooddatacentral.fdc_search(apikey[user],"")
 #+end_src
 
 
@@ -109,18 +107,18 @@ with their prices from google spreadsheets.
 
 ** Using data from Google Sheets
 
-Alternatively, rather than creating & uploading =csv= files we can
-also supply code to find files over the internet.  Here we supply code
+Rather than creating & uploading =csv= files we can
+also write code to find files over the internet.  Here we supply code
 which allows one to input data on prices in a format similar to that
 above (i.e., a spreadsheet with seven columns, labeled Food, Quantity,
-Units, Price, Date, Location, and NDB).
+Units, Price, Date, Location, and FDC).
 
 Using google sheets in this way requires you establish some
 credentials.   Follow Step 1 in [[https://developers.google.com/sheets/api/quickstart/python#step_1_turn_on_the_api_name][Turn on the API]].
 
 #+begin_src ipython :session :tangle diet_problem.py
 # ID of sheet and name of worksheet for google sheets.   
-# These must be public (until we work out google oauth)
+# Easiest if these are public (or use service accounts)
 
 SHEETs = [# Stigler's foods, modern prices
           ("https://docs.google.com/spreadsheet/ccc?key=1ObK5N_5aVXzVHE7ZXWBg0kQvPS3k1enRwsUjhytwh5A","Table 2"), 
@@ -131,7 +129,7 @@ SHEETs = [# Stigler's foods, modern prices
 ** Compile data on food prices
 
 #+begin_src ipython :session :tangle diet_problem.py
-import ndb
+import fooddatacentral
 import pandas as pd
 import warnings
 
@@ -157,6 +155,7 @@ df = pd.concat(DFs,ignore_index=True,sort=False)
 # Some columns which ought to be numeric are actually str; convert them
 df['Price'] = df['Price'].astype(float)
 df['Quantity'] = df['Quantity'].astype(float)
+df['FDC'] = df['FDC'].astype(int)
 
 df
 #+end_src
@@ -168,13 +167,14 @@ to get nutritional information.
 
 #+begin_src ipython :session :tangle diet_problem.py
 D = {}
+count = 0
 for food in  df.Food.tolist():
     try:
-        NDB = df.loc[df.Food==food,:].NDB
-        D[food] = ndb.ndb_report(apikey[user],NDB).Quantity
+        FDC = df.loc[df.Food==food,:].FDC[count]
+        count+=1
+        D[food] = fooddatacentral.fdc_report(apikey[user],FDC).Quantity
     except AttributeError: 
-        warnings.warn("Couldn't find NDB Code %s for food %s." % (food,NDB))
-        
+        warnings.warn("Couldn't find FDC Code %s for food %s." % (food,FDC))        
 
 D = pd.DataFrame(D,dtype=float)
 
@@ -185,7 +185,7 @@ D
 * Units & Prices
 
 Now, the prices we observe can be for lots of different quantities and
-units.  The NDB database basically wants everything in either hundreds
+units.  The FDC database basically wants everything in either hundreds
 of grams (hectograms) or hundreds of milliliters (deciliters).  
 
 Sometimes this conversion is simple; if the price we observe is for
@@ -196,39 +196,39 @@ bag of flour is approximately 22.68 hectograms.
 Othertimes things are more complicated.  If you observe the price of a
 dozen donuts, that needs to be converted to hectograms, for example.  
 
-A function =ndb_units= in the [[file:ndb.py::from%20urllib.request%20import%20Request,%20urlopen][ndb]] module accomplishes this conversion
+A function =fdc_units= in the [[file:fooddatacentral.py::from%20urllib.request%20import%20Request,%20urlopen][fdc]] module accomplishes this conversion
 for many different units, using the =python= [[https://pint.readthedocs.io/en/latest/][pint module]].  A file
 [[file:Data/food_units.txt][./Data/food_units.txt]] can be edited to deal with odd cases such as
 donuts, using a format described in the =pint= [[https://pint.readthedocs.io/en/latest/defining.html][documentation]]. 
 
-Here's an example of the usage of =ndb.ndb_units=:
+Here's an example of the usage of =fooddatacentral.fdc_units=:
 #+begin_src ipython :results output raw :session :tangle diet_problem.py 
-import ndb
+import fooddatacentral
 
 # Try your own quantities and units.
 # If units are missing try adding to ./Data/food_units.txt
 
-print(ndb.ndb_units(5,'lbs'))
-print(ndb.ndb_units(1,'gallon'))
-print(ndb.ndb_units(2,'tea_bag'))
-print(ndb.ndb_units(12,'donut'))
+print(fooddatacentral.fdc_units(5,'lbs'))
+print(fooddatacentral.fdc_units(1,'gallon'))
+print(fooddatacentral.fdc_units(2,'tea_bag'))
+print(fooddatacentral.fdc_units(12,'donut'))
 #+end_src
 
 
-Now, use the =ndb_units= function to convert all foods to either
-deciliters or hectograms, to match NDB database:
+Now, use the =fdc_units= function to convert all foods to either
+deciliters or hectograms, to match FDC database:
 
 #+begin_src ipython :results output raw :session :tangle diet_problem.py 
-# Convert food quantities to NDB units
-df['NDB Quantity'] = df[['Quantity','Units']].T.apply(lambda x : ndb.ndb_units(x['Quantity'],x['Units']))
+# Convert food quantities to FDC units
+df['FDC Quantity'] = df[['Quantity','Units']].T.apply(lambda x : fooddatacentral.fdc_units(x['Quantity'],x['Units']))
 
 # Now may want to filter df by time or place--need to get a unique set of food names.
-df['NDB Price'] = df['Price']/df['NDB Quantity']
+df['FDC Price'] = df['Price']/df['FDC Quantity']
 
 df.dropna(how='any') # Drop food with any missing data
 
 # To use minimum price observed
-Prices = df.groupby('Food')['NDB Price'].min()
+Prices = df.groupby('Food')['FDC Price'].min()
 
 Prices.head()
 #+end_src
@@ -239,8 +239,8 @@ We've figured out some foods we can buy, the nutritional content of
 those foods, and  the price of the foods.  Now we need to say
 something about nutritional requirements.   Our data for this is based
 on  US government recommendations available at
-https://health.gov/dietaryguidelines/2015/guidelines/appendix-7/.
-Note that we've tweaked the nutrient labels to match those in the NDB
+https://www.dietaryguidelines.gov/sites/default/files/2019-05/2015-2020_Dietary_Guidelines.pdf.
+Note that we've tweaked the nutrient labels to match those in the FDC
 data.
 
 We've broken down the requirements into three different tables.  The
@@ -260,7 +260,7 @@ of protein per day.
 | Iron, Fe                       | RDA    |     7 |    10 |    10 |      8 |      8 |      15 |      11 |      18 |       8 |      18 |       8 |     8 |     8 |
 | Magnesium, Mg                  | RDA    |    80 |   130 |   130 |    240 |    240 |     360 |     410 |     310 |     400 |     320 |     420 |   320 |   420 |
 | Niacin                         | RDA    |     6 |     8 |     8 |     12 |     12 |      14 |      16 |      14 |      16 |      14 |      16 |    14 |    16 |
-| Phosphorus, P                  | RDA    |   460 |   500 |   500 |  1250  |  1250  |   1250 |   1250 |     700 |     700 |     700 |     700 |   700 |   700 |
+| Phosphorus, P                  | RDA    |   460 |   500 |   500 |   1250 |   1250 |    1250 |    1250 |     700 |     700 |     700 |     700 |   700 |   700 |
 | Potassium, K                   | AI     |  3000 |  3800 |  3800 |   4500 |   4500 |    4700 |    4700 |    4700 |    4700 |    4700 |    4700 |  4700 |  4700 |
 | Riboflavin                     | RDA    |   0.5 |   0.6 |   0.6 |    0.9 |    0.9 |       1 |     1.3 |     1.1 |     1.3 |     1.1 |     1.3 |   1.1 |   1.3 |
 | Thiamin                        | RDA    |   0.5 |   0.6 |   0.6 |    0.9 |    0.9 |       1 |     1.2 |     1.1 |     1.2 |     1.1 |     1.2 |   1.1 |   1.2 |
@@ -271,9 +271,9 @@ of protein per day.
 | Vitamin E (alpha-tocopherol)   | RDA    |     6 |     7 |     7 |     11 |     11 |      15 |      15 |      15 |      15 |      15 |      15 |    15 |    15 |
 | Vitamin K (phylloquinone)      | AI     |    30 |    55 |    55 |     60 |     60 |      75 |      75 |      90 |     120 |      90 |     120 |    90 |   120 |
 | Zinc, Zn                       | RDA    |     3 |     5 |     5 |      8 |      8 |       9 |      11 |       8 |      11 |       8 |      11 |     8 |    11 |
-| Vitamin D                      | RDA    |   600 |   600 |   600 |    600 |    600 |     600 |     600 |     600 |     600 |     600 |     600 |  600  |  600  |
+| Vitamin D                      | RDA    |   600 |   600 |   600 |    600 |    600 |     600 |     600 |     600 |     600 |     600 |     600 |   600 |   600 |
 
-#+begin_src ipython :var X=diet_minimums :colnames no :results silent :exports none
+#+begin_src python :var X=diet_minimums :colnames no :results silent :exports none
 from cfe.df_utils import orgtbl_to_df, df_to_orgtbl
 
 df = orgtbl_to_df(X,dtype=str)
@@ -292,7 +292,7 @@ as we might do if we were trying to lose weight.
 | Sodium, Na | UL     |  1500 |  1900 |  1900 |   2200 |   2200 |    2300 |    2300 |    2300 |    2300 |    2300 |    2300 |  2300 |  2300 |
 | Energy     | ---    |  1500 |  1600 |  1800 |   2000 |   2200 |    2200 |    2500 |    2400 |    2600 |    2200 |    2400 |  1800 |  2400 |
 
-#+begin_src ipython :var X=diet_maximums :colnames no :results silent :exports none
+#+begin_src python :var X=diet_maximums :colnames no :results silent :exports none
 from cfe.df_utils import orgtbl_to_df, df_to_orgtbl
 
 df = orgtbl_to_df(X,dtype=str)
@@ -300,7 +300,7 @@ df.to_csv('./diet_maximums.csv')
 #+end_src
 
 Finally, we have some odd constraints given in this final table.
-Mostly the items given don't correspond to items in the NDB data
+Mostly the items given don't correspond to items in the FDC data
 (e.g., copper), but in some cases it may be possible to match things
 up.  We can't use these without some additional work.
 
@@ -387,62 +387,65 @@ print(excess.loc[np.abs(excess) < tol].index.tolist())
 
 #+end_src
   
-* Appendix =ndb=                                                   :noexport:
-#+begin_src ipython :results output raw :tangle ndb.py
+* Appendix =fooddatacentral=                                       :noexport:
+#+begin_src ipython :results output raw :tangle fooddatacentral.py
 from urllib.request import Request, urlopen
 import pandas as pd
 import json
 import warnings
 from pint import UnitRegistry, UndefinedUnitError, DimensionalityError
 ureg = UnitRegistry()
-ureg.load_definitions('./Data/food_units.txt') 
+ureg.load_definitions('./Data/food_units.txt')
 import numpy as np
 
-#%matplotlib inline
+# See https://fdc.nal.usda.gov/api-guide.html for API documentation
 
 import requests
 
-def ndb_search(apikey, term, url = 'https://api.nal.usda.gov/ndb/search'):
+def fdc_search(apikey, term, url = 'https://api.nal.usda.gov/fdc/v1/search'):
     """
-    Search Nutrition DataBase, using apikey and string "term" as search criterion.
+    Search Food Central Database, using apikey and string "term" as search criterion.
 
     Returns a pd.DataFrame of results.
     """
-    parms = (('format', 'json'),('q', term),('api_key', apikey))
+    parms = (('format', 'json'),('generalSearchInput', term),('api_key', apikey))
     r = requests.get(url, params = parms)
-    if 'list' in r.json():
-        l = r.json()['list']['item']
-    else: 
+
+    if 'foods' in r.json():
+        l = r.json()['food']
+    else:
         return []
 
     return pd.DataFrame(l)
 
-def ndb_report(apikey, ndbno, url = 'https://api.nal.usda.gov/ndb/V2/reports'):
-    """Construct a food report for food with given ndbno.  
+def fdc_report(apikey, fdc_id, url = 'https://api.nal.usda.gov/fdc/v1/'):
+    """Construct a food report for food with given fdc_id.
 
     Nutrients are given per 100 g or 100 ml of the food.
     """
-    params = (('ndbno', ndbno),('type', 'b'),('format', 'json'),('api_key', apikey))
+    params = (('api_key', apikey),)
 
     try:
-        r = requests.get(url, params = params)
-        L = r.json()['foods'][0]['food']['nutrients']
+        r = requests.get(url+"%s" % fdc_id, params = params)
+
+        L = r.json()['foodNutrients']
     except KeyError:
-        warnings.warn("Couldn't find NDB=%s." % ndbno)
+        warnings.warn("Couldn't find fdc_id=%s." % fdc_id)
         return None
 
     v = {}
     u = {}
     for l in L:
-        v[l['name']] = l['value']  # Quantity
-        u[l['name']] = l['unit']  # Units
+        if l['type'] == "FoodNutrient":
+            v[l['nutrient']['name']] = l['nutrient']['number']  # Quantity
+            u[l['nutrient']['name']] = l['nutrient']['unitName']  # Units
 
     #print(l)
     N = pd.DataFrame({'Quantity':v,'Units':u})
 
     return N
 
-def ndb_units(q,u,ureg=ureg):
+def fdc_units(q,u,ureg=ureg):
     """Convert quantity q of units u to 100g or 100ml."""
     try:
         x = ureg.Quantity(float(q),u)
@@ -453,6 +456,27 @@ def ndb_units(q,u,ureg=ureg):
         return x.to(ureg.hectogram)
     except DimensionalityError:
         return x.to(ureg.deciliter)
+
+def fdc_ingredients(apikey, fdc_id, url = 'https://api.nal.usda.gov/fdc/v1/'):
+    params = (('api_key', apikey),)
+    try:
+        r = requests.get(url+"%s" % fdc_id, params = params)
+
+        L = r.json()['inputFoods']
+    except KeyError:
+        warnings.warn("Couldn't find fdc_id=%s." % fdc_id)
+        return None
+    v = []
+    p = []
+    a = []
+    w = []
+    for l in L:
+        v.append(l['foodDescription'])
+        p.append(l['portionDescription'])
+        a.append(l['amount'])
+        w.append(l['gramWeight'])
+    return pd.DataFrame({'Ingredient':v,'Portion':p, 'Amount':a, "Weight (grams)":w})['Weight (grams)']
+
 
 #+end_src
 
