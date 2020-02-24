@@ -1,4 +1,4 @@
-#+Title: Minimum Cost Diet Project
+#+Title: Subsistence Cost Diet Project
 #+Author: Ethan Ligon
 #+EPRESENT_FRAME_LEVEL: 3
 #+OPTIONS: toc:nil pri:t
@@ -34,15 +34,21 @@ of dietary requirements.
    - Refugees in Uganda
    - The world population
    - People who eat only at McDonalds
+   - Berkeley students living in Co-ops
    - Americans in 1950 vs. Americans today
    - The Indian population (perhaps accounting for dietary
      restrictions related to religion)
 
+** [#A] Dietary Reference Intakes
+   Write a function that takes as arguments the characteristics of a
+   person (e.g., age, sex) and returns a =pandas.Series= of Dietary Reference
+   Intakes (DRI's) or "Recommended Daily Allowances" (RDA) of a
+   variety of nutrients appropriate for your population of interest.
+
 ** [#A] Data on prices for different foods
    Construct a google spreadsheet of different prices of different
    kinds of food.  The different foods should be keyed to the USDA's
-   /Food Composition Databases/
-   (https://ndb.nal.usda.gov/ndb/search/list).
+   /Food Data Central/ database (https://fdc.nal.usda.gov/)
 
    The foods and prices you use will vary depending on context and the
    particular population of people you're concerned with.  For
@@ -58,7 +64,6 @@ of dietary requirements.
    to US government recommendations, but many other countries have
    their own recommendations, which may be better suited to their
    populations.
-
 ** [#A] Solution
    What is the minimum cost diet for the population you're concerned
    with?  How much does it cost, and of what does it consist?  How
@@ -91,17 +96,26 @@ of dietary requirements.
    the Population Project and look at counts of people by age and sex
    for different countries).
 
-** [#B] Code Review
-   After you've completed writing all your code, have someone outside
-   your group review your code.  The most basic review will just verify
-   that someone else can run your code, but will also usually involve
-   reading over the code, identifying bugs, suggesting design
+** [#B] Review of Your Code
+   Have someone outside your group review your code.  This need not
+   wait until your code is final---a more productive code reviewer may
+   happen earlier in the process.  The most basic review will just
+   verify that someone else can run your code, but will also usually
+   involve reading over the code, identifying bugs, suggesting design
    improvements, etc.  You can document the review by asking the
    reviewer to use =github.com= Issues.
 
+** [#B] Review of Another Group's Code
+   Just as you've asked some other person or group to review your
+   code, serve as a reviewer for some other groups' code.  The most
+   basic review will just verify that someone else can run your code,
+   but will also usually involve reading over the code, identifying
+   bugs, suggesting design improvements, etc.  You can document the
+   review by submitting issues on =github.com=.
+
 ** [#A] Presentation
 
-   Each group will be responsible for giving a 12 minute demonstration
+   Each group will be responsible for giving a 15 minute demonstration
    of the work they've accomplished during the sprint.  Be creative!
    Think of awesome new ways to help others visualize what you've
    learned. 
