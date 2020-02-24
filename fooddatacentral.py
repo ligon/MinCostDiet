@@ -11,7 +11,7 @@ import numpy as np
 
 import requests
 
-def fdc_search(apikey, term, url = 'https://api.nal.usda.gov/fdc/v1/search'):
+def search(apikey, term, url = 'https://api.nal.usda.gov/fdc/v1/search'):
     """
     Search Food Central Database, using apikey and string "term" as search criterion.
 
@@ -21,19 +21,19 @@ def fdc_search(apikey, term, url = 'https://api.nal.usda.gov/fdc/v1/search'):
     r = requests.get(url, params = parms)
 
     if 'foods' in r.json():
-        l = r.json()['food']
+        l = r.json()['foods']
     else:
         return []
 
     return pd.DataFrame(l)
 
-def fdc_report(apikey, fdc_id, url = 'https://api.nal.usda.gov/fdc/v1/'):
+def nutrients(apikey, fdc_id, url = 'https://api.nal.usda.gov/fdc/v1/'):
     """Construct a food report for food with given fdc_id.
 
     Nutrients are given per 100 g or 100 ml of the food.
     """
-    params = (('api_key', apikey),)
-
+    params = (('api_key', apikey),
+)
     try:
         r = requests.get(url+"%s" % fdc_id, params = params)
 
@@ -46,7 +46,11 @@ def fdc_report(apikey, fdc_id, url = 'https://api.nal.usda.gov/fdc/v1/'):
     u = {}
     for l in L:
         if l['type'] == "FoodNutrient":
-            v[l['nutrient']['name']] = l['nutrient']['number']  # Quantity
+            try:
+                v[l['nutrient']['name']] = l['amount']  # Quantity
+            except KeyError: # No amount?
+                v[l['nutrient']['name']] = 0
+                
             u[l['nutrient']['name']] = l['nutrient']['unitName']  # Units
 
     #print(l)
@@ -54,7 +58,7 @@ def fdc_report(apikey, fdc_id, url = 'https://api.nal.usda.gov/fdc/v1/'):
 
     return N
 
-def fdc_units(q,u,ureg=ureg):
+def units(q,u,ureg=ureg):
     """Convert quantity q of units u to 100g or 100ml."""
     try:
         x = ureg.Quantity(float(q),u)
@@ -66,7 +70,7 @@ def fdc_units(q,u,ureg=ureg):
     except DimensionalityError:
         return x.to(ureg.deciliter)
 
-def fdc_ingredients(apikey, fdc_id, url = 'https://api.nal.usda.gov/fdc/v1/'):
+def ingredients(apikey, fdc_id, url = 'https://api.nal.usda.gov/fdc/v1/'):
     params = (('api_key', apikey),)
     try:
         r = requests.get(url+"%s" % fdc_id, params = params)

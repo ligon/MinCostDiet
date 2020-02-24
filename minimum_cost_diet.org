@@ -45,7 +45,7 @@ inner or [[https://en.wikipedia.org/wiki/Dot_product][dot product]] of the two v
 
 Each unit of a given kind of food is assumed to provide a set of
 nutrients, of the sort often reported on food labels.  If there are
-$m$ nutrients, then let $N$ be a matrix with $m$ rows and $n$ columns
+$m$ nutrients, then let $A$ be a matrix with $m$ rows and $n$ columns
 describing the nutritional content of a single unit of each of kind of
 food.
 
@@ -56,14 +56,14 @@ kilo-calories, 46 grams of protein, and  28 grams of fiber per day,
 but  less than 23 grams of sodium.  Then using the matrix notation
 above, we can write these constraints as something like
 \[
-    Nx \geq \underline{b}
+    Ax \geq \underline{b}
 \]
 where $\underline{b}$ is a vector of recommendations about /minimum/ amounts of
 different nutrients.  Similarly, if there are some things we want to
 make sure we eat /less/ of (e.g., mercury, sodium, calories), that can
 be written as a set of linear inequalities
 \[
-    Nx \leq\bar{b},
+    Ax \leq\bar{b},
 \]
 where $\bar{b}$ is a vector of recommendations about /maximum/ amounts
 of different nutrients.  Note that this constraint can /also/ be
@@ -81,8 +81,8 @@ cost diet looks like
 such that
 \[
    \begin{bmatrix}
-      N\\
-      -N
+      A\\
+      -A
    \end{bmatrix}x \geq \begin{bmatrix}
                         \underline{b}\\
                         -\bar{b}
