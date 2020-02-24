@@ -21,7 +21,7 @@ def fdc_search(apikey, term, url = 'https://api.nal.usda.gov/fdc/v1/search'):
     r = requests.get(url, params = parms)
 
     if 'foods' in r.json():
-        l = r.json()['foods']
+        l = r.json()['food']
     else:
         return []
 
