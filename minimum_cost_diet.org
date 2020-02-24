@@ -26,8 +26,8 @@ prices, and RDA requirements are all quite different from what they
 were for our grandparents.
 
 ** Dietary Guidelines
-   A compilation of dietary guidelines are provided at
-   https://health.gov/dietaryguidelines/2015/guidelines/appendix-7/;
+   A compilation of dietary guidelines are provided in Appendix 7 of
+   https://www.dietaryguidelines.gov/sites/default/files/2019-05/2015-2020_Dietary_Guidelines.pdf
    these provide recommended levels of 31 different nutrients by age
    and sex. 
 
@@ -99,9 +99,9 @@ implementations; the one we'll use in our prototype is part of the
 
 ** Dietary Guidelines
    A compilation of dietary guidelines are provided at
-   https://health.gov/dietaryguidelines/2015/guidelines/appendix-7/;
+   https://www.dietaryguidelines.gov/sites/default/files/2019-05/2015-2020_Dietary_Guidelines.pdf;
    these provide recommended levels of 31 different nutrients by age
-   and sex. 
+   and sex.
 
 ** Nutritional content of different kinds of food
 
