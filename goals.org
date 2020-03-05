@@ -11,8 +11,9 @@ of dietary requirements.
 
 We're interested in answering questions of the form ("user story"):
 
-   - "What is the minimum cost of adequately feeding <some population>
-     given prices for <some menu of food>?
+   - As  <role> I'd like <a tool or information> so that I could
+     achieve <some goal>.
+
 
 * Deliverables
   We'll start this project with a working prototype, for you to
