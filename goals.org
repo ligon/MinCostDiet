@@ -9,6 +9,11 @@ adequate nutrition.  Formally, we're looking for the /minimum cost
 diets/ for people of different types which nevertheless satisfy a set
 of dietary requirements.
 
+We're interested in answering questions of the form ("user story"):
+
+   - "What is the minimum cost of adequately feeding <some population>
+     given prices for <some menu of food>?
+
 * Deliverables
   We'll start this project with a working prototype, for you to
   explore improving and exploring.
