@@ -9,12 +9,6 @@ adequate nutrition.  Formally, we're looking for the /minimum cost
 diets/ for people of different types which nevertheless satisfy a set
 of dietary requirements.
 
-We're interested in answering questions of the form ("user story"):
-
-   - As  <role> I'd like <a tool or information> so that I could
-     achieve <some goal>.
-
-
 * Deliverables
   We'll start this project with a working prototype, for you to
   explore improving and exploring.
@@ -76,13 +70,21 @@ We're interested in answering questions of the form ("user story"):
    does it vary with age, sex, and level of activity?
 
 ** [#B] Is your solution edible?
-   Turn your minimum cost diet into a meal.  Make enough for the whole
-   class.  If making your diet palatable requires adding additional
+   Turn your minimum cost diet into a meal.  Share the recipe on
+   =piazza=.  If making your diet palatable requires adding additional
    ingredients (e.g., salt or other spices) be sure to document this
-   and account for it in the overall cost. 
+   and account for it in the overall cost.  (You may want to take
+   pictures or video of preparation and eating).
 
    Whose meal is least costly?  Whose is most tasty?
 
+** [#B] Meal Reviews
+   Get the recipe for the meal from some other group(s), and prepare
+   the meal according to their recipe.  Provide a review (follow-up to
+   the =piazza= post with the recipe).  How much did the ingredients
+   cost?  Would you recommend it to others?  Eat it again?  Eat it
+   exclusively? 
+   
 ** [#C] Sensitivity of Solution
    In general, your solution will depend on relative prices of
    different kinds of food.  And these prices can be quite volatile;
@@ -104,7 +106,7 @@ We're interested in answering questions of the form ("user story"):
 
 ** [#B] Review of Your Code
    Have someone outside your group review your code.  This need not
-   wait until your code is final---a more productive code reviewer may
+   wait until your code is final---a more productive code review may
    happen earlier in the process.  The most basic review will just
    verify that someone else can run your code, but will also usually
    involve reading over the code, identifying bugs, suggesting design
@@ -113,7 +115,7 @@ We're interested in answering questions of the form ("user story"):
 
 ** [#B] Review of Another Group's Code
    Just as you've asked some other person or group to review your
-   code, serve as a reviewer for some other groups' code.  The most
+   code, serve as a reviewer for some other group's code.  The most
    basic review will just verify that someone else can run your code,
    but will also usually involve reading over the code, identifying
    bugs, suggesting design improvements, etc.  You can document the
