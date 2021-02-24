@@ -27,13 +27,12 @@ def search(apikey, term, url = 'https://api.nal.usda.gov/fdc/v1/search'):
 
     return pd.DataFrame(l)
 
-def nutrients(apikey, fdc_id, url = 'https://api.nal.usda.gov/fdc/v1/'):
+def nutrients(apikey, fdc_id, url = 'https://api.nal.usda.gov/fdc/v1/food/'):
     """Construct a food report for food with given fdc_id.
 
     Nutrients are given per 100 g or 100 ml of the food.
     """
-    params = (('api_key', apikey),
-)
+    params = (('api_key', apikey),)
     try:
         r = requests.get(url+"%s" % fdc_id, params = params)
 
@@ -70,7 +69,10 @@ def units(q,u,ureg=ureg):
     except DimensionalityError:
         return x.to(ureg.deciliter)
 
-def ingredients(apikey, fdc_id, url = 'https://api.nal.usda.gov/fdc/v1/'):
+def ingredients(apikey, fdc_id, url = 'https://api.nal.usda.gov/fdc/v1/food/'):
+    """
+    Given fdc_id, return ingredients of food.
+    """
     params = (('api_key', apikey),)
     try:
         r = requests.get(url+"%s" % fdc_id, params = params)
