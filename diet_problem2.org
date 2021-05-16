@@ -14,12 +14,12 @@
   #+begin_src ipython :dir ./ :results silent :tangle diet_problem.py
 user = "ligon"
 
-# API key for Gov
-apikey = {'ligon':"inIyO1begWSRqsYtxS7m6p09PSyq7Qiw7fxzV2qN"}
+# API key for Gov; substitute your own!
+apikey = "YOUR API KEY HERE" # inIyO1begWSRqsYtxS7m6p09PSyq7Qiw7fxzV2qN"
 
 # File with private keys for relevant service account to authenticate
 # and access google spreadsheets
-serviceacct = {'ligon':'students-9093fa174318.json'}
+serviceacct = {'ligon':'../students-9093fa174318.json'}
   #+end_src
 
 
@@ -45,10 +45,6 @@ SHEETs = [# Stigler's foods, modern prices
          ]
 #+end_src
 
-#+results:
-:results:
-:end:
-
 
 ** Compile data on food prices
 
@@ -71,6 +67,7 @@ to get nutritional information.
 
 #+begin_src ipython :tangle diet_problem.py
 import fooddatacentral as fdc
+import warnings
 
 D = {}
 count = 0
@@ -78,7 +75,7 @@ for food in  df.Food.tolist():
     try:
         FDC = df.loc[df.Food==food,:].FDC[count]
         count+=1
-        D[food] = fdc.nutrients(apikey[user],FDC).Quantity
+        D[food] = fdc.nutrients(apikey,FDC).Quantity
     except AttributeError: 
         warnings.warn("Couldn't find FDC Code %s for food %s." % (food,FDC))        
 
@@ -131,13 +128,13 @@ diet_max = read_sheets(DRIs,json_creds=serviceacct[user],sheet='diet_maximums').
 
 #+end_src
 
-* Putting it together
+* Putting it together 
 
 Here we take the different pieces of the puzzle we've developed and
 put them together in the form of a linear program we can solve.
 Recall that the mathematical problem we're trying to solve is
 \[
-    \min_x c'x
+    \min_x p'x
 \]
 such that
 \[
@@ -166,35 +163,39 @@ def solve_subsistence_problem(FoodNutrients,Prices,diet_min,diet_max,tol=1e-6):
        - tol : Solution values smaller than this in absolute value treated as zeros.
        
     """
-    c = Prices.apply(lambda x:x.magnitude).dropna()
+    p = Prices.apply(lambda x:x.magnitude).dropna()
 
     # Compile list that we have both prices and nutritional info for; drop if either missing
-    use = list(set(c.index.tolist()).intersection(FoodNutrients.columns.tolist()))
-    c = c[use]
+    use = p.index.intersection(FoodNutrients.columns)
+    p = p[use]
 
     # Drop nutritional information for foods we don't know the price of,
     # and replace missing nutrients with zeros.
-    Aall = FoodNutrients[c.index].fillna(0)
+    Aall = FoodNutrients[p.index].fillna(0)
 
     # Drop rows of A that we don't have constraints for.
-    Amin = Aall.loc[diet_min.index]
+    Amin = Aall.loc[Aall.index.intersection(diet_min.index)]
 
-    Amax = Aall.loc[diet_max.index]
+    Amax = Aall.loc[Aall.index.intersection(diet_max.index)]
 
     # Minimum requirements involve multiplying constraint by -1 to make <=.
     A = pd.concat([Amin,-Amax])
 
     b = pd.concat([diet_min,-diet_max]) # Note sign change for max constraints
 
+    # Make sure order of p, A, b are consistent
+    A = A.reindex(p.index,axis=1)
+    A = A.reindex(b.index,axis=0)
+
     # Now solve problem!  (Note that the linear program solver we'll use assumes
     # "less-than-or-equal" constraints.  We can switch back and forth by
     # multiplying $A$ and $b$ by $-1$.)
 
-    result = lp(c, -A, -b, method='interior-point')
+    result = lp(p, -A, -b, method='interior-point')
 
     result.A = A
     result.b = b
-    result.diet = pd.Series(result.x,index=c.index)
+    result.diet = pd.Series(result.x,index=p.index)
 
     return result
 #+end_src
@@ -204,7 +205,7 @@ def solve_subsistence_problem(FoodNutrients,Prices,diet_min,diet_max,tol=1e-6):
 Let's choose a particular group (type of person with particular
 dietary requirements) and solve the subsistence problem for them:
 #+begin_src ipython :results output raw :tangle diet_problem.py
-group = 'F 19-30'
+group = 'M 19-30'
 tol = 1e-6
 
 result = solve_subsistence_problem(FoodNutrients,Prices,diet_min[group],diet_max[group],tol=tol)
@@ -229,7 +230,7 @@ print(excess.loc[np.abs(excess) < tol*100].index.tolist())
 
 #+end_src
   
-* Effects of Price Changes on Subsistence Diet
+* Effects of Price Changes on Subsistence Diet Cost
   As prices change, we should expect the minimum cost diet to also
   change.  The code below creates a graph which changes prices away
   from the `base' case one food at a time, and plots changes in total
@@ -239,7 +240,6 @@ import cufflinks as cf
 cf.go_offline()
 
 scale = [.5,.6,.7,.8,.9,1.,1.1,1.2,1.3,1.4,1.5]
-scale = [.5,1,2]
 
 cost0 = solve_subsistence_problem(FoodNutrients,Prices,diet_min[group],diet_max[group],tol=tol).fun
 
@@ -256,3 +256,173 @@ for s in scale:
 Price_response = pd.DataFrame(Price_response).T
 Price_response.iplot(xTitle='log price change',yTitle='log cost change')
 #+end_src
+
+* Effects of Price Changes on Subsistence Diet Composition
+  The code below creates a graph which changes prices just for /one/ food,
+  and traces out the effects of this change on all the foods consumed.
+#+begin_src ipython :tangle diet_problem.py 
+import cufflinks as cf
+cf.go_offline()
+
+ReferenceGood = 'Spinach'
+
+scale = [0.5,0.75,0.9,1.,1.1,1.2,1.3,1.4,1.5,2,4]
+
+cost0 = solve_subsistence_problem(FoodNutrients,Prices,diet_min[group],diet_max[group],tol=tol).fun
+
+my_p = Prices.copy()
+
+diet = {}
+for s in scale:
+
+    my_p[ReferenceGood] = Prices[ReferenceGood]*s
+    result = solve_subsistence_problem(FoodNutrients,my_p,diet_min[group],diet_max[group],tol=tol)
+    diet[my_p[ReferenceGood]] = result.diet
+
+Diet_response = pd.DataFrame(diet).T
+Diet_response.index.name = '%s Price' % ReferenceGood
+
+Diet_response.reset_index(inplace=True)
+
+# Get rid of units for index (cufflinks chokes)
+Diet_response['%s Price' % ReferenceGood] = Diet_response['%s Price' % ReferenceGood].apply(lambda x: x.magnitude)
+
+Diet_response = Diet_response.set_index('%s Price' % ReferenceGood)
+
+# Just look at goods consumed in quantities greater than error tolerance
+Diet_response.loc[:,(Diet_response>tol).sum()>0].iplot(xTitle='%s Price' % ReferenceGood,yTitle='Hectograms')
+#+end_src
+
+
+* Effects of Price Changes on Subsistence Diet Nutrition
+  The code below creates a graph which uses the food price changes
+  described above, but maps into nutrients.
+#+begin_src ipython :tangle diet_problem.py 
+# Matrix product maps quantities of food into quantities of nutrients
+NutrientResponse = Diet_response@FoodNutrients.T
+
+# Drop columns of missing nutrients
+NutrientResponse = NutrientResponse.loc[:,NutrientResponse.count()>0]
+NutrientResponse.iplot(xTitle='%s Price' % ReferenceGood,yTitle='Hectograms')
+#+end_src
+
+* Adding Constraint on Total Weight
+At least at some prices the minimum cost subistence diet involves
+eating unreasonable amounts of food (e.g., 10 kilograms of cabbage per
+day).  We can easily add an additional constraint of the form
+\[
+     \sum x_i \leq \text{max weight}
+\]
+to our linear programming problem since it's just another linear
+inequality, and this may give us more realistic results.
+
+#+begin_src ipython :results output raw :tangle diet_problem.py
+from  scipy.optimize import linprog as lp
+import numpy as np
+
+def solve_subsistence_problem(FoodNutrients,Prices,diet_min,diet_max,max_weight=None,tol=1e-6):
+    """Solve Stigler's Subsistence Cost Problem.
+
+    Inputs:
+       - FoodNutrients : A pd.DataFrame with rows corresponding to foods, columns to nutrients.
+       - Prices : A pd.Series of prices for different foods
+       - diet_min : A pd.Series of DRIs, with index corresponding to columns of FoodNutrients,
+                    describing minimum intakes.
+       - diet_max : A pd.Series of DRIs, with index corresponding to columns of FoodNutrients,
+                    describing maximum intakes.
+       - max_weight : Maximum weight (in hectograms) allowed for diet.
+       - tol : Solution values smaller than this in absolute value treated as zeros.
+       
+    """
+    p = Prices.apply(lambda x:x.magnitude).dropna()
+
+    # Compile list that we have both prices and nutritional info for; drop if either missing
+    use = list(set(p.index.tolist()).intersection(FoodNutrients.columns.tolist()))
+    p = p[use]
+
+    # Drop nutritional information for foods we don't know the price of,
+    # and replace missing nutrients with zeros.
+    Aall = FoodNutrients[p.index].fillna(0)
+
+    # Drop nutritional information for foods we don't know the price of,
+    # and replace missing nutrients with zeros.
+    Aall = FoodNutrients[p.index].fillna(0)
+
+    # Drop rows of A that we don't have constraints for.
+    Amin = Aall.loc[Aall.index.intersection(diet_min.index)]
+
+    Amax = Aall.loc[Aall.index.intersection(diet_max.index)]
+
+    # Minimum requirements involve multiplying constraint by -1 to make <=.
+    A = pd.concat([Amin,-Amax])
+
+    b = pd.concat([diet_min,-diet_max]) # Note sign change for max constraints
+
+    # Make sure order of p, A, b are consistent
+    A = A.reindex(p.index,axis=1)
+    A = A.reindex(b.index,axis=0)
+
+    # Minimum requirements involve multiplying constraint by -1 to make <=.
+    A = pd.concat([Amin,-Amax])
+
+    b = pd.concat([diet_min,-diet_max]) # Note sign change for max constraints
+
+    if max_weight is not None:
+        # Add up weights of foods consumed
+        A.loc['Hectograms'] = -1
+        b.loc['Hectograms'] = -max_weight
+        
+    # Now solve problem!  (Note that the linear program solver we'll use assumes
+    # "less-than-or-equal" constraints.  We can switch back and forth by
+    # multiplying $A$ and $b$ by $-1$.)
+
+    result = lp(p, -A, -b, method='interior-point')
+
+    result.A = A
+    result.b = b
+    
+    if result.success:
+        result.diet = pd.Series(result.x,index=p.index)
+    else: # No feasible solution?
+        result.diet = pd.Series(result.x,index=p.index)*np.nan  
+
+    return result
+#+end_src
+
+** Price Changes and Subsistence Diet Composition with Weight Constraint
+  Re-do our analysis of changing prices, but with a constraint that
+  total weight of diet must be less that 12 hectograms (1.2 kg).
+#+begin_src ipython :tangle diet_problem.py 
+import cufflinks as cf
+cf.go_offline()
+
+ReferenceGood = 'Spinach'
+
+scale = [0.5,0.75,0.9,1.,1.1,1.2,1.3,1.4,1.5,2,4]
+
+cost0 = solve_subsistence_problem(FoodNutrients,Prices,diet_min[group],diet_max[group],max_weight=12,tol=tol).fun
+
+my_p = Prices.copy()
+
+diet = {}
+for s in scale:
+
+    my_p[ReferenceGood] = Prices[ReferenceGood]*s
+    result = solve_subsistence_problem(FoodNutrients,my_p,diet_min[group],diet_max[group],max_weight=12,tol=tol)
+    diet[my_p[ReferenceGood]] = result.diet
+
+Diet_response = pd.DataFrame(diet).T
+Diet_response.index.name = '%s Price' % ReferenceGood
+
+Diet_response.reset_index(inplace=True)
+
+# Get rid of units for index (cufflinks chokes)
+Diet_response['%s Price' % ReferenceGood] = Diet_response['%s Price' % ReferenceGood].apply(lambda x: x.magnitude)
+
+Diet_response = Diet_response.set_index('%s Price' % ReferenceGood)
+
+# Just look at goods consumed in quantities greater than error tolerance
+Diet_response.loc[:,(Diet_response>tol).sum()>0].iplot(xTitle='%s Price' % ReferenceGood,yTitle='Hectograms')
+#+end_src
+
+
