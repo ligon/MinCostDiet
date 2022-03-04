@@ -38,7 +38,7 @@ from  scipy.optimize import linprog as lp
 import numpy as np
 import warnings
 
-def solve_subsistence_problem(FoodNutrients,Prices,diet_min,diet_max,max_weight=None,tol=1e-6):
+def solve_subsistence_problem(FoodNutrients,Prices,dietmin,dietmax,max_weight=None,tol=1e-6):
     """Solve Stigler's Subsistence Cost Problem.
 
     Inputs:
@@ -63,16 +63,26 @@ def solve_subsistence_problem(FoodNutrients,Prices,diet_min,diet_max,max_weight=
     Aall = FoodNutrients[p.index].fillna(0)
 
     # Drop rows of A that we don't have constraints for.
-    Amin = Aall.loc[Aall.index.intersection(diet_min.index)]
-
-    Amax = Aall.loc[Aall.index.intersection(diet_max.index)]
+    Amin = Aall.loc[Aall.index.intersection(dietmin.index)]
+    Amin = Amin.reindex(dietmin.index,axis=0)
+    idx = Amin.index.to_frame()
+    idx['type'] = 'min'
+    #Amin.index = pd.MultiIndex.from_frame(idx)
+    #dietmin.index = Amin.index
+    
+    Amax = Aall.loc[Aall.index.intersection(dietmax.index)]
+    Amax = Amax.reindex(dietmax.index,axis=0)
+    idx = Amax.index.to_frame()
+    idx['type'] = 'max'
+    #Amax.index = pd.MultiIndex.from_frame(idx)
+    #dietmax.index = Amax.index
 
     # Minimum requirements involve multiplying constraint by -1 to make <=.
     A = pd.concat([Amin,
                    -Amax])
 
-    b = pd.concat([diet_min,
-                   -diet_max]) # Note sign change for max constraints
+    b = pd.concat([dietmin,
+                   -dietmax]) # Note sign change for max constraints
 
     # Make sure order of p, A, b are consistent
     A = A.reindex(p.index,axis=1)
@@ -111,9 +121,8 @@ def solve_subsistence_problem(FoodNutrients,Prices,diet_min,diet_max,max_weight=
 !pip install -r requirements.txt
 #+end_src
 
-  Define user and api key here:
+  Define api key here:
   #+begin_src ipython :dir ./ :results silent :tangle diet_problem.py
-user = "ligon"
 
 # API key for Gov; substitute your own!
 apikey = "YOUR API KEY HERE" # inIyO1begWSRqsYtxS7m6p09PSyq7Qiw7fxzV2qN"  # Ligon's API key
@@ -329,7 +338,7 @@ NutrientResponse = Diet_response@FoodNutrients.T
 
 # Drop columns of missing nutrients
 NutrientResponse = NutrientResponse.loc[:,NutrientResponse.count()>0]
-NutrientResponse.iplot(xTitle='%s Price' % ReferenceGood,yTitle='Hectograms')
+NutrientResponse.iplot(xTitle='%s Price' % ReferenceGood,yTitle='Nutrients')
 #+end_src
 
 * Adding Constraint on Total Weight                              
@@ -355,7 +364,7 @@ ReferenceGood = 'Spinach'
 scale = [0.5,0.75,0.9,1.,1.1,1.2,1.3,1.4,1.5,2,4]
 
 cost0 = solve_subsistence_problem(FoodNutrients,Prices,
-                                  diet_min[group],diet_max[group],max_weight=10,tol=tol).fun
+                                  diet_min[group],diet_max[group],max_weight=12,tol=tol).fun
 
 my_p = Prices.copy()
 
@@ -364,7 +373,7 @@ for s in scale:
 
     my_p[ReferenceGood] = Prices[ReferenceGood]*s
     result = solve_subsistence_problem(FoodNutrients,my_p,
-                                       diet_min[group],diet_max[group],max_weight=10,tol=tol)
+                                       diet_min[group],diet_max[group],max_weight=12,tol=tol)
     diet[my_p[ReferenceGood]] = result.diet
 
 Diet_response = pd.DataFrame(diet).T
