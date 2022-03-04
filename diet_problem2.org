@@ -1,7 +1,108 @@
 #+OPTIONS: toc:nil todo:nil
 #+PROPERTY: header-args:python :results output raw  :noweb no-export :exports code
 
-* Preface
+* Function to solve the subsistence problem
+
+Last time we worked through the problem of expressing the subsistence
+cost problem as a linear program, and then solving it.   That process
+involved several different stepsd, which would be easy to get wrong.
+
+Here we create a single function =solve_subsistence_problem=.  By
+isolating the logic of constructing and solving the subsistence
+problem into a stand-alone function we reduce the scope for bugs, and
+this modular approach at the same time makes testing easier.
+
+We take the different pieces of the puzzle we've developed and
+put them together in the form of a linear program we can solve.
+Recall that the mathematical problem we're trying to solve is
+\[
+    \min_x p'x
+\]
+such that
+\[
+     Ax \geq b
+\]
+If we buy a bag of groceries with quantities given by $x$, the total
+cost of the bag of groceries is the inner product of prices and
+quantities.  Since we've converted our units above, this gives us a
+vector of prices where quantities are all in 100 g or ml units.
+
+The following code block defines a function
+=solve_subsistence_problem=, which takes as arguments a dataframe
+mapping different foods to nutrients; a series of prices for those
+same foods; a series giving dietary recommended intake (DRI) minimums;
+and a series giving dietary recommended maximums.
+
+#+begin_src ipython :results output raw :tangle diet_problem.py
+from  scipy.optimize import linprog as lp
+import numpy as np
+import warnings
+
+def solve_subsistence_problem(FoodNutrients,Prices,diet_min,diet_max,max_weight=None,tol=1e-6):
+    """Solve Stigler's Subsistence Cost Problem.
+
+    Inputs:
+       - FoodNutrients : A pd.DataFrame with rows corresponding to foods, columns to nutrients.
+       - Prices : A pd.Series of prices for different foods
+       - diet_min : A pd.Series of DRIs, with index corresponding to columns of FoodNutrients,
+                    describing minimum intakes.
+       - diet_max : A pd.Series of DRIs, with index corresponding to columns of FoodNutrients,
+                    describing maximum intakes.
+       - max_weight : Maximum weight (in hectograms) allowed for diet.
+       - tol : Solution values smaller than this in absolute value treated as zeros.
+       
+    """
+    p = Prices.apply(lambda x:x.magnitude).dropna()
+
+    # Compile list that we have both prices and nutritional info for; drop if either missing
+    use = p.index.intersection(FoodNutrients.columns)
+    p = p[use]
+
+    # Drop nutritional information for foods we don't know the price of,
+    # and replace missing nutrients with zeros.
+    Aall = FoodNutrients[p.index].fillna(0)
+
+    # Drop rows of A that we don't have constraints for.
+    Amin = Aall.loc[Aall.index.intersection(diet_min.index)]
+
+    Amax = Aall.loc[Aall.index.intersection(diet_max.index)]
+
+    # Minimum requirements involve multiplying constraint by -1 to make <=.
+    A = pd.concat([Amin,
+                   -Amax])
+
+    b = pd.concat([diet_min,
+                   -diet_max]) # Note sign change for max constraints
+
+    # Make sure order of p, A, b are consistent
+    A = A.reindex(p.index,axis=1)
+    A = A.reindex(b.index,axis=0)
+
+    if max_weight is not None:
+        # Add up weights of foods consumed
+        A.loc['Hectograms'] = -1
+        b.loc['Hectograms'] = -max_weight
+        
+    # Now solve problem!  (Note that the linear program solver we'll use assumes
+    # "less-than-or-equal" constraints.  We can switch back and forth by
+    # multiplying $A$ and $b$ by $-1$.)
+
+    result = lp(p, -A, -b, method='interior-point')
+
+    result.A = A
+    result.b = b
+    
+    if result.success:
+        result.diet = pd.Series(result.x,index=p.index)
+    else: # No feasible solution?
+        warnings.warn(result.message)
+        result.diet = pd.Series(result.x,index=p.index)*np.nan  
+
+    return result
+#+end_src
+
+
+* Setup
   We take material from the earlier lecture on the subistence diet
   problem, and use it to define the subsistence diet as a function of prices. 
 
@@ -15,11 +116,7 @@
 user = "ligon"
 
 # API key for Gov; substitute your own!
-apikey = "YOUR API KEY HERE" # inIyO1begWSRqsYtxS7m6p09PSyq7Qiw7fxzV2qN"
-
-# File with private keys for relevant service account to authenticate
-# and access google spreadsheets
-serviceacct = {'ligon':'../students-9093fa174318.json'}
+apikey = "YOUR API KEY HERE" # inIyO1begWSRqsYtxS7m6p09PSyq7Qiw7fxzV2qN"  # Ligon's API key
   #+end_src
 
 
@@ -41,7 +138,7 @@ these columns:
 # Easiest if these are public (or use service accounts)
 
 SHEETs = [# Stigler's foods, modern prices
-          ("https://docs.google.com/spreadsheet/ccc?key=1ObK5N_5aVXzVHE7ZXWBg0kQvPS3k1enRwsUjhytwh5A","Table B"), 
+          ("https://docs.google.com/spreadsheet/ccc?key=1ObK5N_5aVXzVHE7ZXWBg0kQvPS3k1enRwsUjhytwh5A","Table B, 2022 Prices"), 
          ]
 #+end_src
 
@@ -52,10 +149,9 @@ SHEETs = [# Stigler's foods, modern prices
    a DataFrame.
 #+begin_src ipython  :tangle diet_problem.py
 import pandas as pd
-from eep153_tools import read_sheets
+from eep153_tools.sheets import read_sheets
 
-df = pd.concat([read_sheets(spreadsheet,json_creds=serviceacct[user],sheet=sheet) for spreadsheet, sheet in SHEETs],
-               ignore_index=True,sort=False)
+df = read_sheets(SHEETs[0][0])[SHEETs[0][1]]
 
 #+end_src
 
@@ -109,95 +205,25 @@ We've figured out some foods we can buy, the nutritional content of
 those foods, and  the price of the foods.  Now we need to say
 something about nutritional requirements.   Our data for this is based
 on  US government recommendations available at
-https://www.dietaryguidelines.gov/sites/default/files/2019-05/2015-2020_Dietary_Guidelines.pdf.
+https://www.dietaryguidelines.gov/sites/default/files/2021-03/Dietary_Guidelines_for_Americans-2020-2025.pdf
 
 I've put some of these data into a google spreadsheet at
 https://docs.google.com/spreadsheets/d/1y95IsQ4HKspPW3HHDtH7QMtlDA66IUsCHJLutVL-MMc/. 
 
 
 #+begin_src ipython :results output raw :tangle diet_problem.py 
-from eep153_tools import read_sheets
+from eep153_tools.sheets import read_sheets
 
-DRIs = "https://docs.google.com/spreadsheets/d/1y95IsQ4HKspPW3HHDtH7QMtlDA66IUsCHJLutVL-MMc/"
+DRI_url = "https://docs.google.com/spreadsheets/d/1y95IsQ4HKspPW3HHDtH7QMtlDA66IUsCHJLutVL-MMc/"
+
+DRIs = read_sheets(DRI_url)
 
 # Define *minimums*
-diet_min = read_sheets(DRIs,json_creds=serviceacct[user],sheet='diet_minimums').set_index('Nutrition')
+diet_min = DRIs['diet_minimums'].set_index('Nutrition')
 
 # Define *maximums*
-diet_max = read_sheets(DRIs,json_creds=serviceacct[user],sheet='diet_maximums').set_index('Nutrition')
+diet_max = DRIs['diet_maximums'].set_index('Nutrition')
 
-#+end_src
-
-* Putting it together 
-
-Here we take the different pieces of the puzzle we've developed and
-put them together in the form of a linear program we can solve.
-Recall that the mathematical problem we're trying to solve is
-\[
-    \min_x p'x
-\]
-such that
-\[
-     Ax \geq b
-\]
-If we buy a bag of groceries with quantities given by $x$, the total
-cost of the bag of groceries is the inner product of prices and
-quantities.  Since we've converted our units above, this gives us a
-vector of prices where quantities are all in 100 g or ml units.
-
-The following code block defines a function 
-#+begin_src ipython :results output raw :tangle diet_problem.py
-from  scipy.optimize import linprog as lp
-import numpy as np
-
-def solve_subsistence_problem(FoodNutrients,Prices,diet_min,diet_max,tol=1e-6):
-    """Solve Stigler's Subsistence Cost Problem.
-
-    Inputs:
-       - FoodNutrients : A pd.DataFrame with rows corresponding to foods, columns to nutrients.
-       - Prices : A pd.Series of prices for different foods
-       - diet_min : A pd.Series of DRIs, with index corresponding to columns of FoodNutrients,
-                    describing minimum intakes.
-       - diet_max : A pd.Series of DRIs, with index corresponding to columns of FoodNutrients,
-                    describing maximum intakes.
-       - tol : Solution values smaller than this in absolute value treated as zeros.
-       
-    """
-    p = Prices.apply(lambda x:x.magnitude).dropna()
-
-    # Compile list that we have both prices and nutritional info for; drop if either missing
-    use = p.index.intersection(FoodNutrients.columns)
-    p = p[use]
-
-    # Drop nutritional information for foods we don't know the price of,
-    # and replace missing nutrients with zeros.
-    Aall = FoodNutrients[p.index].fillna(0)
-
-    # Drop rows of A that we don't have constraints for.
-    Amin = Aall.loc[Aall.index.intersection(diet_min.index)]
-
-    Amax = Aall.loc[Aall.index.intersection(diet_max.index)]
-
-    # Minimum requirements involve multiplying constraint by -1 to make <=.
-    A = pd.concat([Amin,-Amax])
-
-    b = pd.concat([diet_min,-diet_max]) # Note sign change for max constraints
-
-    # Make sure order of p, A, b are consistent
-    A = A.reindex(p.index,axis=1)
-    A = A.reindex(b.index,axis=0)
-
-    # Now solve problem!  (Note that the linear program solver we'll use assumes
-    # "less-than-or-equal" constraints.  We can switch back and forth by
-    # multiplying $A$ and $b$ by $-1$.)
-
-    result = lp(p, -A, -b, method='interior-point')
-
-    result.A = A
-    result.b = b
-    result.diet = pd.Series(result.x,index=p.index)
-
-    return result
 #+end_src
 
 * Using =solve_subsistence_problem= to analyze diet
@@ -254,7 +280,7 @@ for s in scale:
     Price_response[np.log(s)] = cost
 
 Price_response = pd.DataFrame(Price_response).T
-Price_response.iplot(xTitle='log price change',yTitle='log cost change')
+Price_response.iplot(xTitle='change in log price',yTitle='change in log cost')
 #+end_src
 
 * Effects of Price Changes on Subsistence Diet Composition
@@ -306,7 +332,7 @@ NutrientResponse = NutrientResponse.loc[:,NutrientResponse.count()>0]
 NutrientResponse.iplot(xTitle='%s Price' % ReferenceGood,yTitle='Hectograms')
 #+end_src
 
-* Adding Constraint on Total Weight
+* Adding Constraint on Total Weight                              
 At least at some prices the minimum cost subistence diet involves
 eating unreasonable amounts of food (e.g., 10 kilograms of cabbage per
 day).  We can easily add an additional constraint of the form
@@ -316,78 +342,6 @@ day).  We can easily add an additional constraint of the form
 to our linear programming problem since it's just another linear
 inequality, and this may give us more realistic results.
 
-#+begin_src ipython :results output raw :tangle diet_problem.py
-from  scipy.optimize import linprog as lp
-import numpy as np
-
-def solve_subsistence_problem(FoodNutrients,Prices,diet_min,diet_max,max_weight=None,tol=1e-6):
-    """Solve Stigler's Subsistence Cost Problem.
-
-    Inputs:
-       - FoodNutrients : A pd.DataFrame with rows corresponding to foods, columns to nutrients.
-       - Prices : A pd.Series of prices for different foods
-       - diet_min : A pd.Series of DRIs, with index corresponding to columns of FoodNutrients,
-                    describing minimum intakes.
-       - diet_max : A pd.Series of DRIs, with index corresponding to columns of FoodNutrients,
-                    describing maximum intakes.
-       - max_weight : Maximum weight (in hectograms) allowed for diet.
-       - tol : Solution values smaller than this in absolute value treated as zeros.
-       
-    """
-    p = Prices.apply(lambda x:x.magnitude).dropna()
-
-    # Compile list that we have both prices and nutritional info for; drop if either missing
-    use = list(set(p.index.tolist()).intersection(FoodNutrients.columns.tolist()))
-    p = p[use]
-
-    # Drop nutritional information for foods we don't know the price of,
-    # and replace missing nutrients with zeros.
-    Aall = FoodNutrients[p.index].fillna(0)
-
-    # Drop nutritional information for foods we don't know the price of,
-    # and replace missing nutrients with zeros.
-    Aall = FoodNutrients[p.index].fillna(0)
-
-    # Drop rows of A that we don't have constraints for.
-    Amin = Aall.loc[Aall.index.intersection(diet_min.index)]
-
-    Amax = Aall.loc[Aall.index.intersection(diet_max.index)]
-
-    # Minimum requirements involve multiplying constraint by -1 to make <=.
-    A = pd.concat([Amin,-Amax])
-
-    b = pd.concat([diet_min,-diet_max]) # Note sign change for max constraints
-
-    # Make sure order of p, A, b are consistent
-    A = A.reindex(p.index,axis=1)
-    A = A.reindex(b.index,axis=0)
-
-    # Minimum requirements involve multiplying constraint by -1 to make <=.
-    A = pd.concat([Amin,-Amax])
-
-    b = pd.concat([diet_min,-diet_max]) # Note sign change for max constraints
-
-    if max_weight is not None:
-        # Add up weights of foods consumed
-        A.loc['Hectograms'] = -1
-        b.loc['Hectograms'] = -max_weight
-        
-    # Now solve problem!  (Note that the linear program solver we'll use assumes
-    # "less-than-or-equal" constraints.  We can switch back and forth by
-    # multiplying $A$ and $b$ by $-1$.)
-
-    result = lp(p, -A, -b, method='interior-point')
-
-    result.A = A
-    result.b = b
-    
-    if result.success:
-        result.diet = pd.Series(result.x,index=p.index)
-    else: # No feasible solution?
-        result.diet = pd.Series(result.x,index=p.index)*np.nan  
-
-    return result
-#+end_src
 
 ** Price Changes and Subsistence Diet Composition with Weight Constraint
   Re-do our analysis of changing prices, but with a constraint that
@@ -400,7 +354,8 @@ ReferenceGood = 'Spinach'
 
 scale = [0.5,0.75,0.9,1.,1.1,1.2,1.3,1.4,1.5,2,4]
 
-cost0 = solve_subsistence_problem(FoodNutrients,Prices,diet_min[group],diet_max[group],max_weight=12,tol=tol).fun
+cost0 = solve_subsistence_problem(FoodNutrients,Prices,
+                                  diet_min[group],diet_max[group],max_weight=10,tol=tol).fun
 
 my_p = Prices.copy()
 
@@ -408,7 +363,8 @@ diet = {}
 for s in scale:
 
     my_p[ReferenceGood] = Prices[ReferenceGood]*s
-    result = solve_subsistence_problem(FoodNutrients,my_p,diet_min[group],diet_max[group],max_weight=12,tol=tol)
+    result = solve_subsistence_problem(FoodNutrients,my_p,
+                                       diet_min[group],diet_max[group],max_weight=10,tol=tol)
     diet[my_p[ReferenceGood]] = result.diet
 
 Diet_response = pd.DataFrame(diet).T

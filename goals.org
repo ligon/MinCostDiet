@@ -1,15 +1,16 @@
 #+Title: Subsistence Cost Diet Project
 #+Author: Ethan Ligon
 #+EPRESENT_FRAME_LEVEL: 3
-#+OPTIONS: toc:nil pri:t
+#+OPTIONS: toc:nil pri:nil H:2
 
+* Introduction
+** Deliverables
 With a growing world population, everybody's gotta eat.  The idea of
 this project is to characterize /subsistence/ diets which deliver
 adequate nutrition.  Formally, we're looking for the /minimum cost
 diets/ for people of different types which nevertheless satisfy a set
 of dietary requirements.
 
-* Deliverables
   We'll start this project with a working prototype, for you to
   explore improving and exploring.
 
@@ -22,7 +23,7 @@ of dietary requirements.
    - C :: These deliverables would be
           /nice to have/.
 
-** [#A] Description of population of interest
+** [A] Description of population of interest
    This may be the most important decision you have to make.  The
    minimum cost diet for vegan students in Berkeley will almost certainly be
    different from the minimum cost diet for rural villagers in India. 
@@ -38,14 +39,15 @@ of dietary requirements.
    - Americans in 1950 vs. Americans today
    - The Indian population (perhaps accounting for dietary
      restrictions related to religion)
+   - Minimum cost diet at pre-covid prices vs. now.
 
-** [#A] Dietary Reference Intakes
+** [A] Dietary Reference Intakes
    Write a function that takes as arguments the characteristics of a
    person (e.g., age, sex) and returns a =pandas.Series= of Dietary Reference
    Intakes (DRI's) or "Recommended Daily Allowances" (RDA) of a
    variety of nutrients appropriate for your population of interest.
 
-** [#A] Data on prices for different foods
+** [A] Data on prices for different foods
    Construct a google spreadsheet of different prices of different
    kinds of food.  The different foods should be keyed to the USDA's
    /Food Data Central/ database (https://fdc.nal.usda.gov/)
@@ -57,35 +59,35 @@ of dietary requirements.
    menu.  If you want to think of minimum cost organic diet, you
    should consider a wide range of different organic foods.
 
-** [#A] Nutritional content of different foods
+** [A] Nutritional content of different foods
    For all the foods you're considering you'll need to be able to
    describe their nutritional content, in terms that allow you to
    compare with recommended daily allowances.  We'll provide pointers
    to US government recommendations, but many other countries have
    their own recommendations, which may be better suited to their
    populations.
-** [#A] Solution
+** [A] Solution
    What is the minimum cost diet for the population you're concerned
    with?  How much does it cost, and of what does it consist?  How
    does it vary with age, sex, and level of activity?
 
-** [#B] Is your solution edible?
+** [B] Is your solution edible?
    Turn your minimum cost diet into a meal.  Share the recipe on
    =piazza=.  If making your diet palatable requires adding additional
    ingredients (e.g., salt or other spices) be sure to document this
    and account for it in the overall cost.  (You may want to take
-   pictures or video of preparation and eating).
+   pictures or video of preparation and eating).  
 
    Whose meal is least costly?  Whose is most tasty?
 
-** [#B] Meal Reviews
+** [B] Meal Reviews
    Get the recipe for the meal from some other group(s), and prepare
    the meal according to their recipe.  Provide a review (follow-up to
    the =piazza= post with the recipe).  How much did the ingredients
    cost?  Would you recommend it to others?  Eat it again?  Eat it
    exclusively? 
    
-** [#C] Sensitivity of Solution
+** [C] Sensitivity of Solution
    In general, your solution will depend on relative prices of
    different kinds of food.  And these prices can be quite volatile;
    for example, the prices of fresh fruits and vegetables usually
@@ -95,7 +97,7 @@ of dietary requirements.
 
    Try and find an nice way to visualize these changes. 
 
-** [#B] What is total cost for population of interest?
+** [B] What is total cost for population of interest?
 
    You've been interested in a particular population.  It is likely to
    consist of people of different sexes, ages, and levels of
@@ -104,8 +106,8 @@ of dietary requirements.
    the Population Project and look at counts of people by age and sex
    for different countries).
 
-** [#B] Review of Your Code
-   Have someone outside your group review your code.  This need not
+** [B] Review of Your Code
+   This need not
    wait until your code is final---a more productive code review may
    happen earlier in the process.  The most basic review will just
    verify that someone else can run your code, but will also usually
@@ -113,17 +115,16 @@ of dietary requirements.
    improvements, etc.  You can document the review by asking the
    reviewer to use =github.com= Issues.
 
-** [#B] Review of Another Group's Code
-   Just as you've asked some other person or group to review your
-   code, serve as a reviewer for some other group's code.  The most
+** [B] Review of Another Group's Code
+   Serve as a reviewer for some other group's code.  The most
    basic review will just verify that someone else can run your code,
    but will also usually involve reading over the code, identifying
    bugs, suggesting design improvements, etc.  You can document the
    review by submitting issues on =github.com=.
 
-** [#A] Presentation
+** [A] Presentation
 
-   Each group will be responsible for giving a 15 minute demonstration
+   Each group will be responsible for creating a 15 minute video demonstration
    of the work they've accomplished during the sprint.  Be creative!
    Think of awesome new ways to help others visualize what you've
    learned. 

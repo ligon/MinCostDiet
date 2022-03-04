@@ -98,15 +98,18 @@ implementations; the one we'll use in our prototype is part of the
 * Inputs                                                           :noexport:
 
 ** Dietary Guidelines
-   A compilation of dietary guidelines are provided at
-   https://www.dietaryguidelines.gov/sites/default/files/2019-05/2015-2020_Dietary_Guidelines.pdf;
-   these provide recommended levels of 31 different nutrients by age
-   and sex.
+   A compilation of dietary guidelines are provided at in an appendix of
+https://www.dietaryguidelines.gov/sites/default/files/2021-03/Dietary_Guidelines_for_Americans-2020-2025.pdf
+these provide recommended levels of 31 different nutrients by age and
+sex.  I've put some of these data into a google spreadsheet at
+https://docs.google.com/spreadsheets/d/1y95IsQ4HKspPW3HHDtH7QMtlDA66IUsCHJLutVL-MMc/.
+We'll use these to construct the vector $b$.
+
 
 ** Nutritional content of different kinds of food
 
    A source for nutritional information for different kinds of food is
-   provided by the USDA.   
+   provided by the USDA.  This will be used to construct the matrix $A$.
 
    Note that USDA dataset uses "FDC" codes to identify different
    kinds of foods; can also map FDC -> UPC for many (mostly processed) foods.
@@ -115,7 +118,11 @@ implementations; the one we'll use in our prototype is part of the
       - Here's the actual data:
          https://fdc.nal.usda.gov/download-datasets.html
 
-** Food prices 
+** Foods, food prices, units
+   This one is up to you!  You'll need to choose a set of candidate
+   foods that might be used in the diet.  For each kind of food you'll
+   also need to know its price and the units in which quantities of
+   the foods are to be measured.
 
 
 * References
@@ -124,7 +131,7 @@ implementations; the one we'll use in our prototype is part of the
 * Minimum Diet Cost Problem                                   :ignore:slides:
   :PROPERTIES:
   :EXPORT_OPTIONS: H:1
-  :EXPORT_FILE_NAME: minimum_cost_diet_slides
+  :EXPORT_FILE_NAME: ../Materials/Project2/minimum_cost_diet_slides
   :END:
 ** Introduction
  The idea of this project is to solve the problem of finding the
@@ -141,11 +148,14 @@ implementations; the one we'll use in our prototype is part of the
    were for our grandparents.
 
 ** Dietary Guidelines
-    A compilation of dietary guidelines are provided at
-    https://health.gov/sites/default/files/2019-09/2015-2020_Dietary_Guidelines.pdf
-    (See especially Appendix 7);
-    these provide recommended levels of 31 different nutrients by age
-    and sex. 
+   A compilation of dietary guidelines are provided at in an appendix
+of
+https://www.dietaryguidelines.gov/sites/default/files/2021-03/Dietary_Guidelines_for_Americans-2020-2025.pdf
+these provide recommended levels of 31 different nutrients by age and
+sex.  I've put some of these data into a google spreadsheet at
+https://docs.google.com/spreadsheets/d/1y95IsQ4HKspPW3HHDtH7QMtlDA66IUsCHJLutVL-MMc/.
+We'll use these to construct the vector $b$.
+
 
 ** Diet Cost
  Stigler's insight was  that the  minimum cost diet (MCD) problem was
@@ -206,5 +216,7 @@ implementations; the one we'll use in our prototype is part of the
                          -\bar{b}
                        \end{bmatrix}.
  \]
+  We can express this more succinctly by denoting the stacked $A$
+ matrices and $b$ vectors by $\tilde{A}$ and $\tilde{b}$, respectively.
 
 

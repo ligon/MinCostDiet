@@ -1,5 +1,5 @@
 
-#+OPTIONS: toc:nil todo:nil
+#+OPTIONS: toc:nil todo:nil ^:nil
 #+PROPERTY: header-args:python :results output raw  :noweb no-export :exports code
 
 * Introduction
@@ -9,30 +9,37 @@
 \[
     \min_x p'x
 \]
+
 such that
-\[
-   \begin{bmatrix}
+$$\begin{bmatrix}
       A\\
       -A
    \end{bmatrix}x \geq \begin{bmatrix}
                         b_{min}\\
                         -b_{max}
-                      \end{bmatrix},
-\]
+                      \end{bmatrix},$$
+
   where $p$ is a vector of prices, $A$ is a matrix that maps
   vectors of quantities of food into vectors of nutrients, and where
   $b_{min}$ and $b_{max}$ are respectively dietary minimums
-  and maximums of different nutrients.  We will sometimes stack the
-  last, obtaining
+  and maximums of different nutrients.  As above, we will sometimes stack these
+  objects, obtaining
   \[
-      b = \begin{bmatrix}
+      \tilde{A} = \begin{bmatrix}
+                        A_{min}\\
+                        -A_{max}
+                      \end{bmatrix}
+  \]
+  and
+  \[
+      \tilde{b} = \begin{bmatrix}
                         b_{min}\\
                         -b_{max}
-                      \end{bmatrix}.
+                      \end{bmatrix}
   \]
 
   Our job in this notebook: Specify the objects required by the linear
-  program $(p,A,b)$, then have the computer solve the problem for us.
+  program $(p,\tilde{A},\tilde{b})$, then have the computer solve the problem for us.
 * Setup
   We need some particular versions of the following modules;
 #+begin_src ipython :session :results silent
@@ -112,6 +119,7 @@ grocery store, except that I've used the USDA database to look up FDC
 numbers.  Note that we may need extra information to map some units
 into weights.  For example, I still need to weigh a crumpet.
 
+*** Trip to Monterey Market                                        :noexport:
 #+name: food_prices
 | Food                   | Quantity | Units   | Price | Date             |    FDC |
 |------------------------+----------+---------+-------+------------------+--------|
@@ -134,11 +142,13 @@ into weights.  For example, I still need to weigh a crumpet.
 | Potato, russet         |       10 | pound   |  2.98 | [2019-09-14 Sat] | 170030 |
 | Squash, Zucchini       |        1 | pound   |  1.49 | [2019-09-14 Sat] | 169291 |
 
-#+begin_src python :var F=food_prices :colnames no :results silent :exports none
-from cfe.df_utils import orgtbl_to_df, df_to_orgtbl
+*** Trip to Monterey Market                                     
 
-df = orgtbl_to_df(F,dtype=str)
-df.to_csv('./Data/ligons_shopping.csv')
+#+begin_src ipython 
+import pandas as pd
+
+df = pd.read_csv('./Data/ligons_shopping.csv',index_col=0)
+df
 #+end_src
 
 ** A Second Example: Villages in South India
@@ -152,7 +162,8 @@ df.to_csv('./Data/ligons_shopping.csv')
   Here are some goods for which prices and quantities consumed were
   recorded in a survey conducted by the International Crops Research
   Institute of the Semi-Arid Tropics of several villages in South
-  India in the 1970s & early 1980s.
+  India in the 1970s & early 1980s.  Local prices for these goods were
+  very low, but I've found more recent on-line prices to record here.
   #+begin_src ipython :session :tangle diet_problem.py
 import pandas as pd
 
@@ -179,20 +190,14 @@ with their prices from google spreadsheets.
 
 
 In this case, we use a function from a module I've written,
- =eep153_tools.read_sheets=, to read the price data for the
+ =eep153_tools.sheets=, to read the price data for the
 Stigler goods.  
 
 #+begin_src ipython :session :tangle diet_problem.py
 import pandas as pd
-from eep153_tools import read_sheets
+from eep153_tools.sheets import read_sheets
 
-#### Need private keys from json file (we're authenticating using "service accounts")
-#!gpg --batch --passphrase "SECRET PASSPHRASE" -d ../students-9093fa174318.json.gpg > ../students-9093fa174318.json
-####
-
-df = read_sheets("1ObK5N_5aVXzVHE7ZXWBg0kQvPS3k1enRwsUjhytwh5A",
-                 sheet="Table B",
-                 json_creds='../students-9093fa174318.json')
+df = read_sheets("1ObK5N_5aVXzVHE7ZXWBg0kQvPS3k1enRwsUjhytwh5A")['Table B']
 
 df
 #+end_src
@@ -279,7 +284,10 @@ those foods, and  the price of the foods.  Now we need to say
 something about nutritional requirements, and construct the vectors
 $b_{min}$ and $b_{max}$.   Our data for this is based
 on  US government recommendations available at
-https://www.dietaryguidelines.gov/sites/default/files/2019-05/2015-2020_Dietary_Guidelines.pdf.
+https://www.dietaryguidelines.gov/sites/default/files/2021-03/Dietary_Guidelines_for_Americans-2020-2025.pdf
+
+I've put some of these data into a google spreadsheet at
+https://docs.google.com/spreadsheets/d/1y95IsQ4HKspPW3HHDtH7QMtlDA66IUsCHJLutVL-MMc/. 
 Note that we've tweaked the nutrient labels to match those in the FDC
 data.
 
