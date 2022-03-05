@@ -52,7 +52,13 @@ def solve_subsistence_problem(FoodNutrients,Prices,dietmin,dietmax,max_weight=No
        - tol : Solution values smaller than this in absolute value treated as zeros.
        
     """
-    p = Prices.apply(lambda x:x.magnitude).dropna()
+    try: 
+        p = Prices.apply(lambda x:x.magnitude)
+    except AttributeError:  # Maybe not passing in prices with units?
+        warnings.warn("Prices have no units.  BE CAREFUL!  We're assuming prices are per hectogram or deciliter!")
+        p = Prices
+
+    p = p.dropna()
 
     # Compile list that we have both prices and nutritional info for; drop if either missing
     use = p.index.intersection(FoodNutrients.columns)
