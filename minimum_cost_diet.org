@@ -3,7 +3,7 @@
 #+OPTIONS: date:t e:t email:nil f:t inline:t num:t p:nil pri:nil
 #+OPTIONS: prop:nil stat:t tags:t tasks:t tex:t timestamp:t title:t
 #+OPTIONS: toc:nil todo:t |:t
-#+TITLE: The Minimum Cost Diet Problem
+#+TITLE: The Minimum Cost of Subsistence
 #+AUTHOR: Ethan Ligon
 #+EMAIL: ligon@berkeley.edu
 #+LANGUAGE: en
@@ -14,11 +14,11 @@
 * Introduction
 The idea of this project is to solve the problem of finding the
 minimum cost diet satisfying a set of "Recommended Daily Allowances"
-(RDAs) for a particular set of nutrients and possible kind of food.
+(RDAs) for a particular set of nutrients and possible kind of food (a "subsistence" diet).
 
 ** History 
-This problem was first "solved" by cite:stigler45 for a set of foods
-and prices and RDA requirements (see cite:dantzig90 for an
+This problem was first "solved" by [cite/t:@stigler45] for a set of foods
+and prices and RDA requirements (see [cite/t:@dantzig90] for an
 entertaining discussion of what "solved" meant in that context).
 Times have changed: the variety of different kinds of food, food
 prices, and RDA requirements are all quite different from what they
@@ -31,9 +31,7 @@ were for our grandparents.
    these provide recommended levels of 31 different nutrients by age
    and sex. 
 
-
 * The Model
- 
 Stigler's insight was  that the  minimum cost diet (MCD) problem was
 most naturally posed as a [[https://en.wikipedia.org/wiki/Linear_programming][linear program]].  If there are $n$ different
 kinds of food one can buy, represent quantities consumed of these as a
@@ -125,22 +123,23 @@ We'll use these to construct the vector $b$.
    the foods are to be measured.
 
 
-* References
-#+LATEX: \renewcommand{\refname}{}\printbibliography
+** References
+#+LATEX: \renewcommand{\refname}{}
+#+print_bibliography:
 
-* Minimum Diet Cost Problem                                   :ignore:slides:
+* Minimum Cost Diet Problem :ignore:slides:
   :PROPERTIES:
   :EXPORT_OPTIONS: H:1
   :EXPORT_FILE_NAME: ../Materials/Project2/minimum_cost_diet_slides
   :END:
 ** Introduction
- The idea of this project is to solve the problem of finding the
- minimum cost diet satisfying a set of "Recommended Daily Allowances"
- (RDAs) for a particular set of nutrients and possible kind of food.
+The idea of this project is to solve the problem of finding the
+minimum cost diet satisfying a set of "Recommended Daily Allowances"
+(RDAs) for a particular set of nutrients and possible kind of food.
 
 ** History 
- - Problem first "solved" by cite:stigler45 for a set of foods
-   and prices and RDA requirements (see cite:dantzig90 for an
+ - Problem first "solved" by [cite/t:@stigler45] for a set of foods
+   and prices and RDA requirements (see [cite/t:@dantzig90] for an
    entertaining discussion of what "solved" meant in that context).
 
  - Times have changed: the variety of different kinds of food, food
@@ -154,8 +153,6 @@ https://www.dietaryguidelines.gov/sites/default/files/2021-03/Dietary_Guidelines
 these provide recommended levels of 31 different nutrients by age and
 sex.  I've put some of these data into a google spreadsheet at
 https://docs.google.com/spreadsheets/d/1y95IsQ4HKspPW3HHDtH7QMtlDA66IUsCHJLutVL-MMc/.
-We'll use these to construct the vector $b$.
-
 
 ** Diet Cost
  Stigler's insight was  that the  minimum cost diet (MCD) problem was
@@ -219,4 +216,5 @@ We'll use these to construct the vector $b$.
   We can express this more succinctly by denoting the stacked $A$
  matrices and $b$ vectors by $\tilde{A}$ and $\tilde{b}$, respectively.
 
-
+** Solution
+We'll introduce code which can quickly solve linear programs given inputs $(\tilde{A},\tilde{b},c)$.  Your job in this project has more to do with finding interesting cases in which to use methods such as these.

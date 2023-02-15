@@ -73,17 +73,16 @@ of dietary requirements.
 
 ** [B] Is your solution edible?
    Turn your minimum cost diet into a meal.  Share the recipe on
-   =piazza=.  If making your diet palatable requires adding additional
+   =edstem=.  If making your diet palatable requires adding additional
    ingredients (e.g., salt or other spices) be sure to document this
-   and account for it in the overall cost.  (You may want to take
-   pictures or video of preparation and eating).  
+   and account for it in the overall cost.   If there's general interest we can have a potluck.
 
    Whose meal is least costly?  Whose is most tasty?
 
 ** [B] Meal Reviews
    Get the recipe for the meal from some other group(s), and prepare
    the meal according to their recipe.  Provide a review (follow-up to
-   the =piazza= post with the recipe).  How much did the ingredients
+   the =edstem= post with the recipe).  How much did the ingredients
    cost?  Would you recommend it to others?  Eat it again?  Eat it
    exclusively? 
    
@@ -107,8 +106,7 @@ of dietary requirements.
    for different countries).
 
 ** [B] Review of Your Code
-   This need not
-   wait until your code is final---a more productive code review may
+   This need not wait until your code is final---a more productive code review may
    happen earlier in the process.  The most basic review will just
    verify that someone else can run your code, but will also usually
    involve reading over the code, identifying bugs, suggesting design
