@@ -40,11 +40,6 @@ $$\begin{bmatrix}
 
   Our job in this notebook: Specify the objects required by the linear
   program $(p,\tilde{A},\tilde{b})$, then have the computer solve the problem for us.
-* Setup
-  We need some particular versions of the following modules;
-#+begin_src ipython :session :results silent
-!pip install -r requirements.txt
-#+end_src
 
 * USDA Food Central DataBase
 
@@ -57,13 +52,17 @@ $$\begin{bmatrix}
   free api key (see directions on page), then add that key here in
   place of "DEMO_KEY".
 
-#+begin_src ipython :session :tangle diet_problem.py :results silent
+#+begin_src jupyter-python :session :tangle diet_problem.py :results silent
 apikey = "DEMO_KEY"  # Replace with a real key!  "DEMO_KEY" will be slow...
 #+end_src
 
 ** Looking up foods
 
-I've written a little module =fooddatacentral= with the methods
+I've written a little module =fooddatacentral=.  Install it (only once!), along with other requirements.
+#+begin_src jupyter-python :session :results silent
+%pip install -r requirements.txt --upgrade
+#+end_src
+This module offers some simple methods
    - =search=
    - =nutrients=
    - =units=
@@ -72,10 +71,10 @@ I've written a little module =fooddatacentral= with the methods
 Here's a little code to help look up FDC codes for foods of
 different descriptions.
 
-#+begin_src ipython :results output :session 
+#+begin_src jupyter-python :results output :session
 import fooddatacentral as fdc
 
-fdc.search(apikey,"crunchy peanut butter")
+fdc.search(apikey,"marmite")
 #+end_src
 
 
@@ -83,15 +82,15 @@ fdc.search(apikey,"crunchy peanut butter")
 
 Once we know the =fdc_id= of a particular food we can look up a
 variety of information on it.  We start with nutrients
-#+begin_src ipython :results output :session 
+#+begin_src jupyter-python :results output :session
 id =     # Put an FDC ID HERE!
 fdc.nutrients(apikey,fdc_id=id)
 #+end_src
 
-** FDC Ingredients                                                 :noexport:
+** FDC Ingredients
 
 We can also look up the ingredients for many foods in the FDC:
-#+begin_src ipython
+#+begin_src jupyter-python
 
 fdc.ingredients(apikey,id)
 #+end_src
@@ -110,7 +109,35 @@ FDC website.
 Food is purchased in particular units (gallons, pounds, grams).  And
 in some cases the natural units are things like donuts or eggs, in
 which case we may need to define our  own units (see the example of
-"xl_egg" below).  New units can be added to the file [[./Data/food_units.txt]].
+"xl_egg" below).  New units can be added to the file [[~/.unitsrc]].
+** Example: Stigler's Foods
+
+In his 1945 paper George Stigler constructed a subsistence diet
+chosen from 14 different goods (see Table B in [[https://www.jstor.org/stable/pdf/1231810.pdf][Stigler 1945]]), with
+prices reported for the years 1939 & 1944.
+
+I've looked up more recent prices for these same goods, and recorded
+these at
+https://docs.google.com/spreadsheets/d/1ObK5N_5aVXzVHE7ZXWBg0kQvPS3k1enRwsUjhytwh5A/, in a sheet called "Stigler Table B (2022 Prices)"
+
+The code below allows us to collect data on different kinds of food
+with their prices from google spreadsheets.
+
+In this case, we use a function from a module I've written,
+ =eep153_tools.sheets=, to read the price data for the
+Stigler goods.
+
+#+begin_src jupyter-python :session :tangle diet_problem.py
+import pandas as pd
+from eep153_tools.sheets import read_sheets
+
+df = read_sheets("1ObK5N_5aVXzVHE7ZXWBg0kQvPS3k1enRwsUjhytwh5A",sheet='Stigler Table B (2022 Prices)')
+
+df = df.set_index('Food')
+
+df
+#+end_src
+
 
 ** Example: My Shopping Trip
 Here's an example of describing some different kinds of food, along with
@@ -119,88 +146,35 @@ grocery store, except that I've used the USDA database to look up FDC
 numbers.  Note that we may need extra information to map some units
 into weights.  For example, I still need to weigh a crumpet.
 
-*** Trip to Monterey Market                                        :noexport:
-#+name: food_prices
-| Food                   | Quantity | Units   | Price | Date             |    FDC |
-|------------------------+----------+---------+-------+------------------+--------|
-| Milk, 2% fat           |        1 | gallon  |  4.99 | [2019-09-14 Sat] | 336075 |
-| Eggs, extra large      |       12 | xl_egg  |  3.59 | [2019-09-14 Sat] | 747997 |
-| Crumpets               |        6 | crumpet |  3.19 | [2019-09-14 Sat] | 547313 |
-| Bananas                |        1 | pound   |  3.15 | [2019-09-14 Sat] | 173944 |
-| Carrots, Organic       |        2 | pound   |  2.29 | [2019-09-14 Sat] | 170393 |
-| Cauliflower            |     2.51 | pound   |  4.24 | [2019-09-14 Sat] | 169986 |
-| Endive, Red            |     1.26 | pound   |  6.27 | [2019-09-14 Sat] | 168412 |
-| Figs, black mission    |        1 | pound   |  4.98 | [2019-09-14 Sat] | 438223 |
-| Leeks, Organic         |        1 | pound   |  1.29 | [2019-09-14 Sat] | 169246 |
-| Lettuce, Little Gem    |        1 | pound   |  5.98 | [2019-09-14 Sat] | 342618 |
-| Mushrooms, King Oyster |        1 | pound   |    12 | [2019-09-14 Sat] | 342623 |
-| Onion, yellow          |        1 | pound   |  0.39 | [2019-09-14 Sat] | 170000 |
-| Orange juice           |      0.5 | gallon  |  8.98 | [2019-09-14 Sat] | 414575 |
-| Parsnip                |        1 | pound   |  1.98 | [2019-09-14 Sat] | 170417 |
-| Potato, marble mix     |        1 | pound   |  2.59 | [2019-09-14 Sat] | 170032 |
-| Rhubarb                |        1 | pound   |  1.84 | [2019-09-14 Sat] | 167758 |
-| Potato, russet         |       10 | pound   |  2.98 | [2019-09-14 Sat] | 170030 |
-| Squash, Zucchini       |        1 | pound   |  1.49 | [2019-09-14 Sat] | 169291 |
 
 *** Trip to Monterey Market                                     
 
-#+begin_src ipython 
+#+begin_src jupyter-python :tangle diet_problem.py
 import pandas as pd
+from eep153_tools.sheets import read_sheets
 
-df = pd.read_csv('./Data/ligons_shopping.csv',index_col=0)
+df = read_sheets('https://docs.google.com/spreadsheets/d/1ObK5N_5aVXzVHE7ZXWBg0kQvPS3k1enRwsUjhytwh5A/',sheet="Ligon's Shopping Trip")
+
+df = df.set_index('Food')
+
 df
 #+end_src
 
-** A Second Example: Villages in South India
-
-  Information on prices for different goods is found in a collection
-  of =csv= files in [[./Data]].  You can generate additional files by
-  using a spreadsheet and exporting to the appropriate file format,
-  then putting that file in the [[./Data]] directory.  These files should
-  have the same columns and format as the example above.
+** Another Example: Villages in South India :noexport:
 
   Here are some goods for which prices and quantities consumed were
   recorded in a survey conducted by the International Crops Research
   Institute of the Semi-Arid Tropics of several villages in South
   India in the 1970s & early 1980s.  Local prices for these goods were
   very low, but I've found more recent on-line prices to record here.
-  #+begin_src ipython :session :tangle diet_problem.py
-import pandas as pd
+  #+begin_src jupyter-python :session
+df = read_sheets('https://docs.google.com/spreadsheets/d/1ObK5N_5aVXzVHE7ZXWBg0kQvPS3k1enRwsUjhytwh5A/',sheet="icrisat_foods")
 
-df = pd.read_csv("./Data/icrisat_foods.csv",   # Prices for food consumed in Indian ICRISAT villages
-                 dtype={'Price':float,
-                        'Quantity':float,
-                        'FDC':int})  
+df = df.set_index('Food')
+
 df
   #+end_src
 
-
-** Another Example: Stigler's Foods
-
-In his 1945 paper George Stigler constructed a subsistence diet
-chosen from 14 different goods (see Table B in [[https://www.jstor.org/stable/pdf/1231810.pdf][Stigler 1945]]), with
-prices reported for the years 1939 & 1944.  
-
-I've looked up more recent prices for these same goods, and recorded
-these at
-https://docs.google.com/spreadsheets/d/1ObK5N_5aVXzVHE7ZXWBg0kQvPS3k1enRwsUjhytwh5A/.  
-
-The code below allows us to collect data on different kinds of food
-with their prices from google spreadsheets.
-
-
-In this case, we use a function from a module I've written,
- =eep153_tools.sheets=, to read the price data for the
-Stigler goods.  
-
-#+begin_src ipython :session :tangle diet_problem.py
-import pandas as pd
-from eep153_tools.sheets import read_sheets
-
-df = read_sheets("1ObK5N_5aVXzVHE7ZXWBg0kQvPS3k1enRwsUjhytwh5A")['Table B']
-
-df
-#+end_src
 
 ** Units & Prices
 
@@ -218,14 +192,13 @@ df
 
  A function =units= in the [[file:fooddatacentral.py::from%20urllib.request%20import%20Request,%20urlopen][fdc]] module accomplishes this conversion
  for many different units, using the =python= [[https://pint.readthedocs.io/en/latest/][pint module]].  A file
- [[file:Data/food_units.txt][./Data/food_units.txt]] can be edited to deal with odd cases such as
- donuts, using a format described in the =pint= [[https://pint.readthedocs.io/en/latest/defining.html][documentation]]. 
+ [[file:Data/food_units.txt][~/.units.rc]] can be edited to deal with odd cases such as
+ donuts, using a format described in the =pint= [[https://pint.readthedocs.io/en/latest/advanced/defining.html][documentation]].
 
  Here's an example of the usage of =fooddatacentral.units=:
- #+begin_src ipython :results output raw :session :tangle diet_problem.py 
-
+ #+begin_src jupyter-python :results output raw :session
 # Try your own quantities and units.
-# If units are missing try adding to ./Data/food_units.txt
+# If units are missing try adding to ~/.unitsrc
 
 print(fdc.units(5,'lbs'))
 print(fdc.units(1,'gallon'))
@@ -236,7 +209,9 @@ print(fdc.units(12,'donut'))
  Now, use the =units= function to convert all foods to either
  deciliters or hectograms, to match FDC database:
 
- #+begin_src ipython :results output raw :session :tangle diet_problem.py 
+ #+begin_src jupyter-python :results output raw :session :tangle diet_problem.py
+import fooddatacentral as fdc
+
 # Convert food quantities to FDC units
 df['FDC Quantity'] = df[['Quantity','Units']].T.apply(lambda x : fdc.units(x['Quantity'],x['Units']))
 
@@ -259,18 +234,19 @@ Prices
  into nutrients.  We have a list of foods with prices.  Do lookups on USDA database
  to get nutritional information.
 
- #+begin_src ipython :session :tangle diet_problem.py
-import fooddatacentral as fdc
+ #+begin_src jupyter-python :session :tangle diet_problem.py
+import warnings
 
 D = {}
 count = 0
-for food in  df.Food.tolist():
+for food in  df.index:
     try:
-        FDC = df.loc[df.Food==food,:].FDC[count]
+        FDC = df.loc[df.index==food,:].FDC.values[0]
         count+=1
         D[food] = fdc.nutrients(apikey,FDC).Quantity
-    except AttributeError: 
-        warnings.warn("Couldn't find FDC Code %s for food %s." % (food,FDC))        
+        print(food)
+    except AttributeError:
+        warnings.warn(f"Couldn't find FDC Code {FDC} for food {food}.")
 
 D = pd.DataFrame(D,dtype=float)
 
@@ -296,15 +272,25 @@ first is /minimum/ quantities that we need to  satisfy.  For example,
 this table tells us that a 20 year-old female needs at least 46 grams
 of protein per day.
 
-#+begin_src ipython
-bmin = pd.read_csv('./diet_minimums.csv').set_index('Nutrition').iloc[:,2:]
+#+begin_src jupyter-python
+RDIs = read_sheets('https://docs.google.com/spreadsheets/d/1y95IsQ4HKspPW3HHDtH7QMtlDA66IUsCHJLutVL-MMc/')
+
+bmin = RDIs['diet_minimums'].set_index('Nutrition')
+
+# Drop string describing source
+bmin = bmin.drop('Source',axis=1)
+
 bmin
 #+end_src
 
 This next table specifies /maximum/ quantities.  Our 20 year-old
 female shouldn't have more than 2300 milligrams of sodium per day.
-#+begin_src ipython
-bmax = pd.read_csv('./diet_maximums.csv').set_index('Nutrition').iloc[:,2:]
+#+begin_src jupyter-python
+bmax = RDIs['diet_maximums'].set_index('Nutrition')
+
+# Drop string describing source
+bmax = bmax.drop('Source',axis=1)
+
 bmax
 #+end_src
 
@@ -325,11 +311,11 @@ If we buy a bag of groceries with quantities given by $x$, the total
 cost of the bag of groceries is the inner product of prices and
 quantities.  Since we've converted our units above, this gives us a
 vector of prices where quantities are all in 100 g or ml units.
-#+begin_src ipython :results output raw :session :tangle diet_problem.py 
+#+begin_src jupyter-python :results output raw :session :tangle diet_problem.py
 p = Prices.apply(lambda x:x.magnitude).dropna()
 
 # Compile list that we have both prices and nutritional info for; drop if either missing
-use = list(set(p.index.tolist()).intersection(D.columns.tolist()))
+use = p.index.intersection(D.columns)
 p = p[use]
 
 p
@@ -341,7 +327,7 @@ The matrix $A$ maps a bag of groceries $x$ into nutrients, but we
 don't need to keep track of nutrients for which we don't have
 contraints.
 
-#+begin_src ipython :results output raw :session :tangle diet_problem.py 
+#+begin_src jupyter-python :results output raw :session :tangle diet_problem.py
 
 # Drop nutritional information for foods we don't know the price of,
 # and replace missing nutrients with zeros.
@@ -352,7 +338,7 @@ Amin = Aall.loc[bmin.index]
 
 Amax = Aall.loc[bmax.index]
 
-# Minimum requirements involve multiplying constraint by -1 to make <=.
+# Maximum requirements involve multiplying constraint by -1 to make <=.
 A = pd.concat([Amin,-Amax])
 
 A
@@ -364,7 +350,7 @@ Finally, the right hand side vector $b$ in the expression
 \[
     Ax\geq b
 \]
-#+begin_src ipython :results output raw :session :tangle diet_problem.py 
+#+begin_src jupyter-python :results output raw :session :tangle diet_problem.py
 b = pd.concat([bmin,-bmax]) # Note sign change for max constraints
 
 b
@@ -373,7 +359,7 @@ b
 * Solving the problem
 
 First, we find a solution to the problem
-#+begin_src ipython :results output raw :session :tangle diet_problem.py 
+#+begin_src jupyter-python :results output raw :session :tangle diet_problem.py
 from  scipy.optimize import linprog as lp
 import numpy as np
 
@@ -393,15 +379,15 @@ result
 
 
 Let's interpret this.  Start with the cost of the solution:
-#+begin_src ipython :results output raw :session :tangle diet_problem.py 
+#+begin_src jupyter-python :results output raw :session :tangle diet_problem.py
 
-print("Cost of diet for %s is $%4.2f per day." % (group,result.fun))
+print(f"Cost of diet for {group} is ${result.fun:.2f} per day.")
 #+end_src
 
 
 Next, what is it we're actually eating?
 
-#+begin_src ipython :results output raw :session :tangle diet_problem.py 
+#+begin_src jupyter-python :results output raw :session :tangle diet_problem.py
 # Put back into nice series
 diet = pd.Series(result.x,index=p.index)
 
@@ -410,7 +396,7 @@ print(diet[diet >= tol])  # Drop items with quantities less than precision of ca
 #+end_src
 
 Given this diet, what are nutritional outcomes?
-#+begin_src ipython :results output raw :session :tangle diet_problem.py 
+#+begin_src jupyter-python :results output raw :session :tangle diet_problem.py
 
 tab = pd.DataFrame({"Outcome":np.abs(A).dot(diet),"Recommendation":np.abs(b[group])})
 print("\nWith the following nutritional outcomes of interest:")
@@ -420,7 +406,7 @@ tab
 
 Finally, what are the constraints that bind?  Finding a less expensive
 diet might involve finding less expensive sources for these particular nutrients.
-#+begin_src ipython :results output raw :session :tangle diet_problem.py 
+#+begin_src jupyter-python :results output raw :session :tangle diet_problem.py
 
 print("\nConstraining nutrients are:")
 excess = tab.diff(axis=1).iloc[:,1]
@@ -428,104 +414,3 @@ print(excess.loc[np.abs(excess) < tol].index.tolist())
 
 #+end_src
   
-* Appendix =fooddatacentral=                                       :noexport:
-#+begin_src ipython :results output raw :tangle fooddatacentral.py
-from urllib.request import Request, urlopen
-import pandas as pd
-import json
-import warnings
-from pint import UnitRegistry, UndefinedUnitError, DimensionalityError
-ureg = UnitRegistry()
-ureg.load_definitions('./Data/food_units.txt')
-import numpy as np
-
-# See https://fdc.nal.usda.gov/api-guide.html for API documentation
-
-import requests
-
-def search(apikey, term, url = 'https://api.nal.usda.gov/fdc/v1/search'):
-    """
-    Search Food Central Database, using apikey and string "term" as search criterion.
-
-    Returns a pd.DataFrame of results.
-    """
-    parms = (('format', 'json'),('generalSearchInput', term),('api_key', apikey))
-    r = requests.get(url, params = parms)
-
-    if 'foods' in r.json():
-        l = r.json()['foods']
-    else:
-        return []
-
-    return pd.DataFrame(l)
-
-def nutrients(apikey, fdc_id, url = 'https://api.nal.usda.gov/fdc/v1/food/'):
-    """Construct a food report for food with given fdc_id.
-
-    Nutrients are given per 100 g or 100 ml of the food.
-    """
-    params = (('api_key', apikey),)
-    try:
-        r = requests.get(url+"%s" % fdc_id, params = params)
-
-        L = r.json()['foodNutrients']
-    except KeyError:
-        warnings.warn("Couldn't find fdc_id=%s." % fdc_id)
-        return None
-
-    v = {}
-    u = {}
-    for l in L:
-        if l['type'] == "FoodNutrient":
-            try:
-                v[l['nutrient']['name']] = l['amount']  # Quantity
-            except KeyError: # No amount?
-                v[l['nutrient']['name']] = 0
-                
-            u[l['nutrient']['name']] = l['nutrient']['unitName']  # Units
-
-    #print(l)
-    N = pd.DataFrame({'Quantity':v,'Units':u})
-
-    return N
-
-def units(q,u,ureg=ureg):
-    """Convert quantity q of units u to 100g or 100ml."""
-    try:
-        x = ureg.Quantity(float(q),u)
-    except UndefinedUnitError:
-        return ureg.Quantity(np.NaN,'ml')
-
-    try:
-        return x.to(ureg.hectogram)
-    except DimensionalityError:
-        return x.to(ureg.deciliter)
-
-def ingredients(apikey, fdc_id, url = 'https://api.nal.usda.gov/fdc/v1/food/'):
-    """
-    Given fdc_id, return ingredients of food.
-    """
-    params = (('api_key', apikey),)
-    try:
-        r = requests.get(url+"%s" % fdc_id, params = params)
-
-        L = r.json()['inputFoods']
-    except KeyError:
-        warnings.warn("Couldn't find fdc_id=%s." % fdc_id)
-        return None
-    v = []
-    p = []
-    a = []
-    w = []
-    for l in L:
-        v.append(l['foodDescription'])
-        p.append(l['portionDescription'])
-        a.append(l['amount'])
-        w.append(l['gramWeight'])
-    return pd.DataFrame({'Ingredient':v,'Portion':p, 'Amount':a, "Weight (grams)":w})['Weight (grams)']
-
-
-#+end_src
-
-
-
