@@ -5,7 +5,7 @@
 
 Last time we worked through the problem of expressing the subsistence
 cost problem as a linear program, and then solving it.   That process
-involved several different stepsd, which would be easy to get wrong.
+involved several different steps, which would be easy to get wrong.
 
 Here we create a single function =solve_subsistence_problem=.  By
 isolating the logic of constructing and solving the subsistence
@@ -33,7 +33,7 @@ mapping different foods to nutrients; a series of prices for those
 same foods; a series giving dietary recommended intake (DRI) minimums;
 and a series giving dietary recommended maximums.
 
-#+begin_src ipython :results output raw :tangle diet_problem.py
+#+begin_src jupyter-python :results output raw :tangle diet_problem.py
 from  scipy.optimize import linprog as lp
 import numpy as np
 import warnings
@@ -123,15 +123,15 @@ def solve_subsistence_problem(FoodNutrients,Prices,dietmin,dietmax,max_weight=No
   problem, and use it to define the subsistence diet as a function of prices. 
 
   We need some particular versions of the following modules;
-#+begin_src ipython :dir ./ :results silent
+#+begin_src jupyter-python :dir ./ :results silent
 !pip install -r requirements.txt
 #+end_src
 
   Define api key here:
-  #+begin_src ipython :dir ./ :results silent :tangle diet_problem.py
+  #+begin_src jupyter-python :dir ./ :results silent :tangle diet_problem.py
 
 # API key for Gov; substitute your own!
-apikey = "YOUR API KEY HERE" # inIyO1begWSRqsYtxS7m6p09PSyq7Qiw7fxzV2qN"  # Ligon's API key
+apikey = "YOUR API KEY HERE"
   #+end_src
 
 
@@ -148,12 +148,12 @@ these columns:
 
 ** Using data from Google Sheets
 
-#+begin_src ipython :tangle diet_problem.py
+#+begin_src jupyter-python :tangle diet_problem.py
 # ID of sheet and name of worksheet for google sheets.   
-# Easiest if these are public (or use service accounts)
+# Easiest if these are public (or use service accounts; share with students@eep153.iam.gserviceaccount.com)
 
 SHEETs = [# Stigler's foods, modern prices
-          ("https://docs.google.com/spreadsheet/ccc?key=1ObK5N_5aVXzVHE7ZXWBg0kQvPS3k1enRwsUjhytwh5A","Table B, 2022 Prices"), 
+          ("https://docs.google.com/spreadsheet/ccc?key=1ObK5N_5aVXzVHE7ZXWBg0kQvPS3k1enRwsUjhytwh5A","Stigler Table B (2022 Prices)"),
          ]
 #+end_src
 
@@ -162,12 +162,12 @@ SHEETs = [# Stigler's foods, modern prices
 
    For each sheet in the list =SHEETs= grab data and concatenate into
    a DataFrame.
-#+begin_src ipython  :tangle diet_problem.py
+#+begin_src jupyter-python  :tangle diet_problem.py
 import pandas as pd
 from eep153_tools.sheets import read_sheets
 
 df = read_sheets(SHEETs[0][0])[SHEETs[0][1]]
-
+df
 #+end_src
 
 
@@ -176,7 +176,7 @@ df = read_sheets(SHEETs[0][0])[SHEETs[0][1]]
 Now we have a list of foods with prices.  Do lookups on USDA database
 to get nutritional information.
 
-#+begin_src ipython :tangle diet_problem.py
+#+begin_src jupyter-python :tangle diet_problem.py
 import fooddatacentral as fdc
 import warnings
 
@@ -201,7 +201,7 @@ of grams (hectograms) or hundreds of milliliters (deciliters).
 We use the =units= function to convert all foods to either
 deciliters or hectograms, to match FDC database:
 
-#+begin_src ipython :results output raw :tangle diet_problem.py 
+#+begin_src jupyter-python :results output raw :tangle diet_problem.py
 # Convert food quantities to FDC units
 df['FDC Quantity'] = df[['Quantity','Units']].T.apply(lambda x : fdc.units(x['Quantity'],x['Units']))
 
@@ -226,7 +226,7 @@ I've put some of these data into a google spreadsheet at
 https://docs.google.com/spreadsheets/d/1y95IsQ4HKspPW3HHDtH7QMtlDA66IUsCHJLutVL-MMc/. 
 
 
-#+begin_src ipython :results output raw :tangle diet_problem.py 
+#+begin_src jupyter-python :results output raw :tangle diet_problem.py
 from eep153_tools.sheets import read_sheets
 
 DRI_url = "https://docs.google.com/spreadsheets/d/1y95IsQ4HKspPW3HHDtH7QMtlDA66IUsCHJLutVL-MMc/"
@@ -245,7 +245,7 @@ diet_max = DRIs['diet_maximums'].set_index('Nutrition')
 
 Let's choose a particular group (type of person with particular
 dietary requirements) and solve the subsistence problem for them:
-#+begin_src ipython :results output raw :tangle diet_problem.py
+#+begin_src jupyter-python :results output raw :tangle diet_problem.py
 group = 'M 19-30'
 tol = 1e-6
 
@@ -276,7 +276,7 @@ print(excess.loc[np.abs(excess) < tol*100].index.tolist())
   change.  The code below creates a graph which changes prices away
   from the `base' case one food at a time, and plots changes in total
   diet cost.
-#+begin_src ipython :tangle diet_problem.py
+#+begin_src jupyter-python :tangle diet_problem.py
 import cufflinks as cf
 cf.go_offline()
 
@@ -301,7 +301,7 @@ Price_response.iplot(xTitle='change in log price',yTitle='change in log cost')
 * Effects of Price Changes on Subsistence Diet Composition
   The code below creates a graph which changes prices just for /one/ food,
   and traces out the effects of this change on all the foods consumed.
-#+begin_src ipython :tangle diet_problem.py 
+#+begin_src jupyter-python :tangle diet_problem.py
 import cufflinks as cf
 cf.go_offline()
 
@@ -338,7 +338,7 @@ Diet_response.loc[:,(Diet_response>tol).sum()>0].iplot(xTitle='%s Price' % Refer
 * Effects of Price Changes on Subsistence Diet Nutrition
   The code below creates a graph which uses the food price changes
   described above, but maps into nutrients.
-#+begin_src ipython :tangle diet_problem.py 
+#+begin_src jupyter-python :tangle diet_problem.py
 # Matrix product maps quantities of food into quantities of nutrients
 NutrientResponse = Diet_response@FoodNutrients.T
 
@@ -361,7 +361,7 @@ inequality, and this may give us more realistic results.
 ** Price Changes and Subsistence Diet Composition with Weight Constraint
   Re-do our analysis of changing prices, but with a constraint that
   total weight of diet must be less that 12 hectograms (1.2 kg).
-#+begin_src ipython :tangle diet_problem.py 
+#+begin_src jupyter-python :tangle diet_problem.py
 import cufflinks as cf
 cf.go_offline()
 
