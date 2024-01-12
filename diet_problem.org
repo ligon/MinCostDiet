@@ -1,4 +1,3 @@
-
 #+OPTIONS: toc:nil todo:nil ^:nil
 #+PROPERTY: header-args:python :results output raw  :noweb no-export :exports code
 
@@ -109,7 +108,8 @@ FDC website.
 Food is purchased in particular units (gallons, pounds, grams).  And
 in some cases the natural units are things like donuts or eggs, in
 which case we may need to define our  own units (see the example of
-"xl_egg" below).  New units can be added to the file [[~/.unitsrc]].
+"xl_egg" below).  New units can be added to a file =.unitsrc= in your home directory.
+
 ** Example: Stigler's Foods
 
 In his 1945 paper George Stigler constructed a subsistence diet
