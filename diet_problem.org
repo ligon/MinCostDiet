@@ -372,7 +372,7 @@ group = "F 19-30"
 # "less-than-or-equal" constraints.  We can switch back and forth by
 # multiplying $A$ and $b$ by $-1$.)
 
-result = lp(p, -A, -b[group], method='interior-point')
+result = lp(p, -A, -b[group], method='highs')
 
 result
 #+end_src

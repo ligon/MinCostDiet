@@ -1,3 +1,4 @@
+:STARTUP:
 #+OPTIONS: ':t *:t -:t ::t <:t H:3 \n:nil ^:{} arch:headline author:t
 #+OPTIONS: broken-links:nil c:nil creator:nil d:(not "LOGBOOK")
 #+OPTIONS: date:t e:t email:nil f:t inline:t num:t p:nil pri:nil
@@ -10,6 +11,7 @@
 #+SELECT_TAGS: export
 #+EXCLUDE_TAGS: noexport
 #+CREATOR: Emacs 25.1.1 (Org mode 9.2)
+:END:
 
 * Introduction
 The idea of this project is to solve the problem of finding the

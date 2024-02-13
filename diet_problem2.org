@@ -103,7 +103,7 @@ def solve_subsistence_problem(FoodNutrients,Prices,dietmin,dietmax,max_weight=No
     # "less-than-or-equal" constraints.  We can switch back and forth by
     # multiplying $A$ and $b$ by $-1$.)
 
-    result = lp(p, -A, -b, method='interior-point')
+    result = lp(p, -A, -b, method='highs')
 
     result.A = A
     result.b = b

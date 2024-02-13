@@ -80,7 +80,7 @@ of dietary requirements.
    Whose meal is least costly?  Whose is most tasty?
 
 ** [B] Meal Reviews
-   Get the recipe for the meal from some other group(s), and prepare
+   Get the recipe for the meal from some other team(s), and prepare
    the meal according to their recipe.  Provide a review (follow-up to
    the =edstem= post with the recipe).  How much did the ingredients
    cost?  Would you recommend it to others?  Eat it again?  Eat it
@@ -113,8 +113,8 @@ of dietary requirements.
    improvements, etc.  You can document the review by asking the
    reviewer to use =github.com= Issues.
 
-** [B] Review of Another Group's Code
-   Serve as a reviewer for some other group's code.  The most
+** [B] Review of Another Team's Code
+   Serve as a reviewer for some other team's code.  The most
    basic review will just verify that someone else can run your code,
    but will also usually involve reading over the code, identifying
    bugs, suggesting design improvements, etc.  You can document the
