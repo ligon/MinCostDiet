@@ -277,8 +277,8 @@ print(excess.loc[np.abs(excess) < tol*100].index.tolist())
   from the `base' case one food at a time, and plots changes in total
   diet cost.
 #+begin_src jupyter-python :tangle diet_problem.py
-import cufflinks as cf
-cf.go_offline()
+import pandas as pd
+pd.options.plotting.backend = 'plotly'
 
 scale = [.5,.6,.7,.8,.9,1.,1.1,1.2,1.3,1.4,1.5]
 
@@ -295,15 +295,16 @@ for s in scale:
     Price_response[np.log(s)] = cost
 
 Price_response = pd.DataFrame(Price_response).T
-Price_response.iplot(xTitle='change in log price',yTitle='change in log cost')
+Price_response.plot(labels=dict(index='change in log price',value='change in log cost'))
+
 #+end_src
 
 * Effects of Price Changes on Subsistence Diet Composition
   The code below creates a graph which changes prices just for /one/ food,
   and traces out the effects of this change on all the foods consumed.
 #+begin_src jupyter-python :tangle diet_problem.py
-import cufflinks as cf
-cf.go_offline()
+import pandas as pd
+pd.options.plotting.backend = 'plotly'
 
 ReferenceGood = 'Spinach'
 
@@ -331,7 +332,7 @@ Diet_response['%s Price' % ReferenceGood] = Diet_response['%s Price' % Reference
 Diet_response = Diet_response.set_index('%s Price' % ReferenceGood)
 
 # Just look at goods consumed in quantities greater than error tolerance
-Diet_response.loc[:,(Diet_response>tol).sum()>0].iplot(xTitle='%s Price' % ReferenceGood,yTitle='Hectograms')
+Diet_response.loc[:,(Diet_response>tol).sum()>0].plot(label = dict(index='%s Price' % ReferenceGood,value='Hectograms'))
 #+end_src
 
 
@@ -344,7 +345,7 @@ NutrientResponse = Diet_response@FoodNutrients.T
 
 # Drop columns of missing nutrients
 NutrientResponse = NutrientResponse.loc[:,NutrientResponse.count()>0]
-NutrientResponse.iplot(xTitle='%s Price' % ReferenceGood,yTitle='Nutrients')
+NutrientResponse.plot(label=dict(index='%s Price' % ReferenceGood,value='Nutrients'))
 #+end_src
 
 * Adding Constraint on Total Weight                              
@@ -362,8 +363,8 @@ inequality, and this may give us more realistic results.
   Re-do our analysis of changing prices, but with a constraint that
   total weight of diet must be less that 12 hectograms (1.2 kg).
 #+begin_src jupyter-python :tangle diet_problem.py
-import cufflinks as cf
-cf.go_offline()
+import pandas as pd
+pd.options.plotting.backend = 'plotly'
 
 ReferenceGood = 'Spinach'
 
@@ -393,7 +394,7 @@ Diet_response['%s Price' % ReferenceGood] = Diet_response['%s Price' % Reference
 Diet_response = Diet_response.set_index('%s Price' % ReferenceGood)
 
 # Just look at goods consumed in quantities greater than error tolerance
-Diet_response.loc[:,(Diet_response>tol).sum()>0].iplot(xTitle='%s Price' % ReferenceGood,yTitle='Hectograms')
+Diet_response.loc[:,(Diet_response>tol).sum()>0].plot(label=dict(index='%s Price' % ReferenceGood,value='Hectograms'))
 #+end_src
 
 
