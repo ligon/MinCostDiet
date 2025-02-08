@@ -20,7 +20,7 @@ Recall that the mathematical problem we're trying to solve is
 \]
 such that
 \[
-     Ax \geq b
+    \tilde{A}x \geq \tilde{b}
 \]
 If we buy a bag of groceries with quantities given by $x$, the total
 cost of the bag of groceries is the inner product of prices and
@@ -289,7 +289,7 @@ for s in scale:
     cost = {}
     for i,p in enumerate(Prices):
         my_p = Prices.copy()
-        my_p[i] = p*s
+        my_p.iloc[i] = p*s
         result = solve_subsistence_problem(FoodNutrients,my_p,diet_min[group],diet_max[group],tol=tol)
         cost[Prices.index[i]] = np.log(result.fun/cost0)
     Price_response[np.log(s)] = cost
