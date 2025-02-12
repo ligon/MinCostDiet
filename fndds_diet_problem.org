@@ -113,7 +113,7 @@ print(prices.index.levels[0])
 prices = prices.xs("2017/2018", level="year")
 
 # drop rows of prices where the price is "NA"
-prices = prices.dropna(subset='price_100gm')
+prices = prices.dropna(subset="price")
 
 print(f"We have prices for {prices.shape[0]} unique recipes (FNDDS food codes)")
 #+end_src
