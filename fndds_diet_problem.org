@@ -2,194 +2,148 @@
 #+PROPERTY: header-args:jupyter-python :session py 
 
 * Introduction
-  We're thinking about the problem of finding the cheapest possible
-  nutritious diet.  Last time we argued that this problem could be
-  expressed as a /linear program/
+We're thinking about the problem of finding the cheapest possible
+nutritious diet. As we have discussed, this can be set up as a linear program.
+
 \[
     \min_x p'x
 \]
 
 such that
-$$\begin{bmatrix}
-      A\\
-      -A
-   \end{bmatrix}x \geq \begin{bmatrix}
-                        b_{min}\\
-                        -b_{max}
-                      \end{bmatrix},$$
+\[
+Ax \geq b
+\]
 
-  where $p$ is a vector of prices, $A$ is a matrix that maps
-  vectors of quantities of food into vectors of nutrients, and where
-  $b_{min}$ and $b_{max}$ are respectively dietary minimums
-  and maximums of different nutrients.  As above, we will sometimes stack these
-  objects, obtaining
-  \[
-      \tilde{A} = \begin{bmatrix}
-                        A_{min}\\
-                        -A_{max}
-                      \end{bmatrix}
-  \]
-  and
-  \[
-      \tilde{b} = \begin{bmatrix}
-                        b_{min}\\
-                        -b_{max}
-                      \end{bmatrix}
-  \]
+where $p$ is a vector of prices, $A$ is a matrix that maps
+vectors of quantities of food into vectors of nutrients, and where b is a vector of nutrient constraints.
 
-  Our job in this notebook: Specify the objects required by the linear
-  program $(p,\tilde{A},\tilde{b})$, then have the computer solve the problem for us.
+The goal of this notebook is to expose the class to some data sources and to generate a minimum cost diet for the United States using recent national average price data.
 
 * Food and Nutrient Data
-The USDA maintains a database of foods called the [[https://www.ars.usda.gov/northeast-area/beltsville-md-bhnrc/beltsville-human-nutrition-research-center/food-surveys-research-group/docs/fndds/][FNDDS]] (Food and Nutrition Database for Dietary Studies). In it, they define "recipes," which are made up of "ingredients." There are one or more ingredients per recipe, and then ingredients are mapped to the nutritional value contained in 100g of that ingredient. Using all of this, we can get a dataset that comprises the nutrient profile of fndds recipes!
 
-Lets load in the recipes and see what we have
+The USDA maintains a database of foods called the [[https://www.ars.usda.gov/northeast-area/beltsville-md-bhnrc/beltsville-human-nutrition-research-center/food-surveys-research-group/docs/fndds/][FNDDS]] (Food and Nutrition Database for Dietary Studies). In it, they define "recipes," which are made up of "ingredients." There are one or more ingredients per recipe. Ingredients are then mapped to nutrients in terms of nutrient units per 100 g of an ingredient. Thus, using these mappings, we can generate a FNDDS recipe-level food-to-nutrient matrix we can use as our "A" matrix.
+
+Lets first define a helper function we will use to make sure ids are formatted similarly (to help with dataframe merging). 
+
+#+begin_src jupyter-python :results none
+def format_id(id,zeropadding=0):
+    """Nice string format for any id, string or numeric.
+
+    Optional zeropadding parameter takes an integer
+    formats as {id:0z} where
+    """
+    if pd.isnull(id) or id in ['','.']: return None
+
+    try:  # If numeric, return as string int
+        return ('%d' % id).zfill(zeropadding)
+    except TypeError:  # Not numeric
+        return id.split('.')[0].strip().zfill(zeropadding)
+    except ValueError:
+        return None
+
+#+end_src
+
+Lets load in the recipes and see what we have.
 
 #+begin_src jupyter-python :results none
 import pandas as pd
-recipes = pd.read_csv("Data/fndds_recipes.csv")
+recipes = (pd.read_csv("Data/fndds_recipes.csv", )
+           .assign(parent_foodcode = lambda df: df["parent_foodcode"].apply(format_id),
+                   ingred_code = lambda df: df["ingred_code"].apply(format_id))
+           .rename(columns={"parent_desc": "recipe"}))
 
-# there's some weird typing issues we need to deal with to allow for a merge later.
-recipes['parent_foodcode'] = recipes['parent_foodcode'].astype(int).astype(str)
-recipes['ingred_code'] = recipes['ingred_code'].astype(int).astype(str)
 
-recipes.head()
+# lets see an example of a recipe.. note 
+recipes[recipes["recipe"].str.contains("Vegetable lasagna", case=False)]
 #+end_src
 
 And we can take a look at the ingredients. I'll call this dataframe "nutrition" because that's what we really care about in here. 
 
 #+begin_src jupyter-python :results none
-NUTRIENT_NAMES = {
-    "Fiber, total dietary": "Dietary Fiber",
-    "Linoleic acid": "Linoleic Acid",
-    "Linolenic acid": "Linolenic Acid",
-    "Vitamin A, RAE": "Vitamin A",
-    "Vitamin E (alpha-tocopherol)": "Vitamin E",
-    "Vitamin D (D2 + D3)": "Vitamin D",
-    "Vitamin B-6": "Vitamin B6",
-    "Vitamin B-12": "Vitamin B12",
-    "Choline, total": "Choline",
-    "Vitamin K (phylloquinone)": "Vitamin K",
-    "Folate, total": "Folate",
-}
+nutrition = (pd.read_csv("Data/fndds_ingredients_nutrients.csv")
+             .assign(ingred_code = lambda df: df["ingred_code"].apply(format_id)))
 
-nutrition = (pd.read_csv("Data/fndds_ingredients_nutrients.csv", dtype={'Ingredient code': str})
-             .rename(columns={'Ingredient code': 'ingred_code'})
-             .rename(columns=NUTRIENT_NAMES))
-
-nutrition.head()
+display(nutrition.head())
 nutrition.columns
 #+end_src
 
-Lets combine all this
+Lets merge these mappings to end up with a matrix of recipes and their nutrients as measured by units of a nutrient per 100 grams of that food. 
 
-#+begin_src jupyter-python :results none
+#+begin_src jupyter-python 
 # normalize weights to percentage terms. 
 recipes['ingred_wt'] = recipes['ingred_wt']/recipes.groupby(['parent_foodcode'])['ingred_wt'].transform("sum")
 
 # we're going to extend the recipes data frame to include the nutrient profiles of its ingredients (in 100g)
 df = recipes.merge(nutrition, how="left", on="ingred_code")
 
-# multiply all nutrients per 100g of an ingredient by the weight of that ingredient in a recipe. (the nutrients start in column 7) 
-df.iloc[:, 6:] = df.iloc[:, 6:].multiply(df['ingred_wt'], axis=0)
+# multiply all nutrients per 100g of an ingredient by the weight of that ingredient in a recipe.
+numeric_cols = list(df.select_dtypes(include=["number"]).columns)
+numeric_cols.remove("ingred_wt")
+df[numeric_cols] = df[numeric_cols].mul(df["ingred_wt"], axis=0)
 
 # sum nutrients of food codes (over the multiple ingredients)
-df = df.groupby('parent_foodcode').sum()
-df = df.drop(columns = ["ingred_code", "ingred_desc", "ingred_wt", "Ingredient description"])
+# python tip: one can merge dictionaries dict1 dict2 using **, that is: dict_merge = {**dict1, **dict2}. The ** effectively "unpacks" the key value pairs in each dictionary
+df = df.groupby('parent_foodcode').agg({**{col: "sum" for col in numeric_cols},
+                                        "recipe": "first"})
 
 df.index.name = "recipe_id"
-df = df.rename(columns = {"parent_desc": "recipe"})
-print(df.head())
-#+end_src
 
-Cool! Now lets finish creating our \( A  \) matrix. We want to eventually have \( Ax  \), where $x$ is foods, so we need foods in the columns and nutrients in the rows. But first, lets save a mapping from these recipe_ids to the recipe name, and then create A. Technically the \( A  \) matrix is a mapping from foods to /constrained/ nutrients. We have many nutrients for which there is no recommendation!
-
-#+begin_src jupyter-python :results none
 food_names = df["recipe"]
-
-df = df.drop(columns=["recipe"])
-df
 #+end_src
+
+If we recall, the \( A  \) matrix maps foods into constrained nutrients. This is effectively the transpose of our ~df~. We'll have to do more before we create ~A~ - not all of these nutrients are constrained, and unfortunately, we won't have prices for all foods. 
 
 * Prices
 
-Now that we have the matrix \( A \), lets next consider the price vector \( p \). The USDA generates national average prices ([[https://www.ers.usda.gov/data-products/purchase-to-plate][Purchase to Plate]]) for these FNDDS foods using scanner data from grocery stores all over the country. These are in USD per 100 grams of a recipe. They have been doing this for a while, and they produce the prices in two-year batches.
+Now that we have the bones of the matrix \( A \), lets next consider the price vector \( p \). The USDA generates national average prices ([[https://www.ers.usda.gov/data-products/purchase-to-plate][Purchase to Plate]]) for these FNDDS foods using scanner data from grocery stores all over the country. These are in USD per 100 grams of a recipe. They have been doing this for a while, and they produce the prices in two-year batches.
 
 #+begin_src jupyter-python :results none
-prices = pd.read_csv("Data/fndds_national_prices.csv", usecols=['year', 'food_code','price_100gm'], dtype={'food_code':str})
+prices = pd.read_csv("Data/fndds_national_prices.csv", usecols=['year', 'food_code','price_100gm'])
+prices["food_code"] = prices["food_code"].apply(format_id)
 
-display(prices.head())
+prices = prices.set_index(["year", "food_code"])
+print(prices.index.levels[0])
 
-prices["year"].unique()
-#+end_src
+# we'll focus on the latest price data
+prices = prices.xs("2017/2018", level="year")
 
-Lets foucus on the latest in our dataset "2017/2018"
-
-#+begin_src jupyter-python :results none
-mask = prices['year'] == "2017/2018"
-prices = prices[mask]
-
-# I'm going to remove some codes for powdered beverages because from experience, the prices on these cause issues. 
-drop_codes = ['11810000', '92307000', '92900100', '92542000', '11121100', '11121210', '92101610', '11120000', '11121300', '11514310', '92531030']
-
-mask = prices['food_code'].isin(drop_codes)
-prices = prices[~mask]
-
-# drop na prices
+# drop rows of prices where the price is "NA"
 prices = prices.dropna(subset='price_100gm')
 
-# get the most recent price data for each food_code
-prices = prices.set_index('food_code')['price_100gm'] 
-print(f"{prices.shape[0]} unique recipes (FNDDS food codes)")
+print(f"We have prices for {prices.shape[0]} unique recipes (FNDDS food codes)")
 #+end_src
 
+
 * Dietary Requirements
-We've figured out some foods we can buy, the nutritional content of
-those foods, and  the price of the foods.  Now we need to say
-something about nutritional requirements, and construct the vectors
-$b_{min}$ and $b_{max}$.   Our data for this is based
-on  US government recommendations available at
-https://www.dietaryguidelines.gov/sites/default/files/2021-03/Dietary_Guidelines_for_Americans-2020-2025.pdf
 
-Note however, that some of the units in this pdf are incorrect. I read from a local csv that has fixed the issue.
-
-There are three types of constraints:
-
-- AI: Adequate intake
-- RDA: Recommended Dietary Allowance
-- UL: Upper Limit
-
-I treat both AI and RDA as lower bounds and UL as an upper bound. 
-
+As before, we'll get our dietary requirements from the USDA.
 #+begin_src jupyter-python :results none
 rda = pd.read_csv("Data/rda.csv")
 rda = rda.set_index("Nutrient")
-
-# we don't have nutritional data on Manganese
-rda = rda.drop("Manganese")
 
 rda.columns
 #+end_src
 
 * Putting It All Together
 
-Earlier, we generated a dataframe of foods and nutrients. This included something like 65 different nutrients over 8,900 recipes! Unfortunately, our price data far fewer foods, so we have to narrow the set of foods from which we are choosing.
+Earlier, we generated a dataframe of foods and nutrients. This included something like 65 different nutrients over 8,900 recipes! Unfortunately, our price data far fewer foods, so we have to narrow the set of foods from which we are choosing. I'll solve this issue by taking the set intersection of the two sets of food codes, and then select those common food codes from both dataframes.
 
-#+begin_src jupyter-python :results none
-# add prices to dataset. This inner join keeps only recipes for which we have both nutrition and price data.
-df = df.merge(prices, left_index=True, right_index=True)
+#+begin_src jupyter-python 
+common_recipes = df.index.intersection(prices.index)
 
-# pull out prices as its own vector
-p = df['price_100gm']
-df = df.drop(columns=["price_100gm"])
-             
-# to prep creation of "A", transpose dataframe to have nutrients in rows and recipes in columns 
+# python tip: given a list of indices, "loc" both subsets and sorts. 
+df = df.loc[common_recipes]
+prices = prices.loc[common_recipes]
+
+# lets remap the price dataframe index to be the actual food names.
+prices.index = prices.index.map(food_names)
+
 A_all = df.T
 #+end_src
 
-A_all will have the same number of foods as p has prices. Now we are going to trim that down to include nutrients for which we have constraints. We'll look at the shapes of all these objects to be sure at the end.
+A_all will have the same number of foods as p has prices, but we now must to trim down the number of nutrients to include only those for which we have constraints. We'll look at the shapes of all these objects to be sure that the matrix multiplication operations are well defined.
 
-#+begin_src jupyter-python :results none
+#+begin_src jupyter-python
 # pick a demographic (column from rda dataframe)
 '''
 select from 
@@ -203,19 +157,21 @@ group = "Female_19_30"
 bmin = rda.loc[rda['Constraint Type'].isin(['RDA', 'AI']), group]
 bmax = rda.loc[rda['Constraint Type'].isin(['UL']), group]
 
-# reindex ensures I only keep nutrients in bmin/bmax
+# reindex ensures we only keep nutrients in bmin/bmax
 Amin = A_all.reindex(bmin.index).dropna(how='all')
 Amax = A_all.reindex(bmax.index).dropna(how='all')
 
 b = pd.concat([bmin, -bmax])
 A = pd.concat([Amin, -Amax])
+
+#python tip: by typing "=" after the variable name inside the curly braces, it formats the output so we don't have to write f"variable = {variable}"
 print(f"{bmin.shape=}")
 print(f"{Amin.shape=}")
 print(f"{bmax.shape=}")
 print(f"{Amax.shape=}")
 print(f"{b.shape=}")
 print(f"{A.shape=}")
-print(f"{p.shape=}")
+print(f"{prices.shape=}")
 #+end_src
 
 * Solving the Problem
@@ -224,13 +180,8 @@ First, we find a solution to the problem
 #+begin_src jupyter-python
 from  scipy.optimize import linprog as lp
 import numpy as np
-
+p = prices
 tol = 1e-6 # Numbers in solution smaller than this (in absolute value) treated as zeros
-
-# Now solve problem!  (Note that the linear program solver we'll use assumes
-# "less-than-or-equal" constraints.  We can switch back and forth by
-# multiplying $A$ and $b$ by $-1$.)
-
 result = lp(p, -A, -b, method='highs')
 
 result
@@ -238,130 +189,35 @@ result
 
 Let's interpret this.  Start with the cost of the solution:
 #+begin_src jupyter-python
-
 print(f"Cost of diet for {group} is ${result.fun:.2f} per day.")
 #+end_src
 
-
 Next, what is it we're actually eating?
-
 #+begin_src jupyter-python
-# lets mess with the p index so they are recipe names not ids.
-p = p.to_frame()
-p = p.merge(food_names, how="left", left_index=True, right_index=True).set_index("recipe")
+# lets mess with the index on price df so they are recipe names not ids.
 
-# Put back into nice series
-diet = pd.Series(result.x,index=p.index)
+# get the result x in a series with food names
+diet = pd.Series(result.x,index=prices.index)
 
 print("\nYou'll be eating (in 100s of grams or milliliters):")
-print(diet[diet >= tol])
+print(round(diet[diet >= tol], 2))
 #+end_src
 
 Given this diet, what are nutritional outcomes?
 #+begin_src jupyter-python
-
 tab = pd.DataFrame({"Outcome":A.to_numpy()@diet.to_numpy(),"Recommendation":np.abs(b)})
 print("\nWith the following nutritional outcomes of interest:")
-tab
+print(tab)
 #+end_src
 
 
 Finally, what are the constraints that bind?  Finding a less expensive
 diet might involve finding less expensive sources for these particular nutrients.
 #+begin_src jupyter-python
-
 print("\nConstraining nutrients are:")
 excess = tab.diff(axis=1).iloc[:,1]
 print(excess.loc[np.abs(excess) < tol].index.tolist())
-
-#+end_src
-Lets merge these 
-
-,#+begin_src jupyter-python
-# normalize weights to percentage terms. 
-recipes['ingred_wt'] = recipes['ingred_wt']/recipes.groupby(['parent_foodcode'])['ingred_wt'].transform("sum")
-
-# get nutrients per 100g recipe.
-df = recipes.merge(nutrition, how="left", on="ingred_code")
-
-# multiply all nutrients per 100g of an ingredient by the weight of that ingredient in a recipe. 
-df.iloc[:, 6:] = df.iloc[:, 6:].multiply(df['ingred_wt'], axis=0)
-
-# sum nutrients of food codes (over the multiple ingredients)
-df = df.groupby('parent_foodcode').sum()
-print(df.head())
 #+end_src
 
-#+RESULTS:
-#+begin_example
-recipe_id
-11000000                                          Milk, human
-11100000                                            Milk, NFS
-11111000                                          Milk, whole
-11111100                              Milk, low sodium, whole
-11111150                       Milk, calcium fortified, whole
-                                  ...                        
-99997802    Tomatoes as ingredient in omeletTomatoes as in...
-99997804    Other vegetables as ingredient in omeletOther ...
-99997810    Vegetables as ingredient in curryVegetables as...
-99998130    Sauce as ingredient in hamburgersSauce as ingr...
-99998210    Industrial oil as ingredient in foodIndustrial...
-Name: recipe, Length: 8899, dtype: object
-                                    parent_desc ingred_code  \
-parent_foodcode                                               
-11000000                            Milk, human        1107   
-11100000                              Milk, NFS        1111   
-11111000                            Milk, whole        1077   
-11111100                Milk, low sodium, whole        1089   
-11111150         Milk, calcium fortified, whole        1077   
 
-                                                      ingred_desc  ingred_wt  \
-parent_foodcode                                                                
-11000000                               Milk, human, mature, fluid        1.0   
-11100000           Milk, averaged fat, with added vitamin A and D        1.0   
-11111000         Milk, whole, 3.25% milkfat, with added vitamin D        1.0   
-11111100                                  Milk, low sodium, fluid        1.0   
-11111150         Milk, whole, 3.25% milkfat, with added vitamin D        1.0   
 
-                                           Ingredient description  \
-parent_foodcode                                                     
-11000000                               Milk, human, mature, fluid   
-11100000           Milk, averaged fat, with added vitamin A and D   
-11111000         Milk, whole, 3.25% milkfat, with added vitamin D   
-11111100                                  Milk, low sodium, fluid   
-11111150         Milk, whole, 3.25% milkfat, with added vitamin D   
-
-                 Capric acid  Lauric acid  Myristic acid  Palmitic acid  \
-parent_foodcode                                                           
-11000000             0.06300       0.2560        0.32100        0.91900   
-11100000             0.03825       0.0405        0.14275        0.42475   
-11111000             0.07500       0.0770        0.29700        0.82900   
-11111100             0.08700       0.0970        0.34800        0.91000   
-11111150             0.07500       0.0770        0.29700        0.82900   
-
-                 Palmitoleic acid  ...  Vitamin B12  Vitamin B-12, added  \
-parent_foodcode                    ...                                     
-11000000                  0.12900  ...       0.0500                  0.0   
-11100000                  0.01175  ...       0.4875                  0.0   
-11111000                  0.00000  ...       0.4500                  0.0   
-11111100                  0.07700  ...       0.3600                  0.0   
-11111150                  0.00000  ...       0.4500                  0.0   
-
-                 Vitamin B6  Vitamin C  Vitamin D  Vitamin E  \
-parent_foodcode                                                
-11000000              0.011       5.00      0.100       0.08   
-11100000              0.037       0.05      1.225       0.03   
-11111000              0.036       0.00      1.300       0.07   
-11111100              0.034       0.90      1.300       0.08   
-11111150              0.036       0.00      1.300       0.07   
-
-                 Vitamin E, added  Vitamin K   Water    Zinc  
-parent_foodcode                                               
-11000000                      0.0       0.30  87.500  0.1700  
-11100000                      0.0       0.15  89.525  0.4225  
-11111000                      0.0       0.30  88.130  0.3700  
-11111100                      0.0       0.30  88.200  0.3800  
-11111150                      0.0       0.30  88.130  0.3700  
-
-[5 rows x 70 columns]
-#+end_example
