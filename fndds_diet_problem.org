@@ -1,5 +1,5 @@
 #+OPTIONS: toc:nil todo:nil
-#+PROPERTY: header-args:jupyter-python :session py 
+#+PROPERTY: header-args:jupyter-python :session py :kernel eep153
 
 * Introduction
 We're thinking about the problem of finding the cheapest possible
@@ -7,7 +7,7 @@ nutritious diet. As we have discussed, this can be set up as a linear program.
 
 \[
     \min_x p'x
-\]
+n\]
 
 such that
 \[
@@ -41,13 +41,17 @@ def format_id(id,zeropadding=0):
     except ValueError:
         return None
 
+data_url = "https://docs.google.com/spreadsheets/d/12Z4n8HbFZRYvH6B-D8EDLDibRiL50zNMlSBLMJ41C1o/"
 #+end_src
 
 Lets load in the recipes and see what we have.
 
-#+begin_src jupyter-python :results none
+#+begin_src jupyter-python 
 import pandas as pd
-recipes = (pd.read_csv("Data/fndds_recipes.csv", )
+from eep153_tools.sheets import read_sheets
+
+recipes = read_sheets(data_url, sheet="recipes")
+recipes = (recipes
            .assign(parent_foodcode = lambda df: df["parent_foodcode"].apply(format_id),
                    ingred_code = lambda df: df["ingred_code"].apply(format_id))
            .rename(columns={"parent_desc": "recipe"}))
@@ -60,7 +64,7 @@ recipes[recipes["recipe"].str.contains("Vegetable lasagna", case=False)]
 And we can take a look at the ingredients. I'll call this dataframe "nutrition" because that's what we really care about in here. 
 
 #+begin_src jupyter-python :results none
-nutrition = (pd.read_csv("Data/fndds_ingredients_nutrients.csv")
+nutrition = (read_sheets(url, sheet="nutrients")
              .assign(ingred_code = lambda df: df["ingred_code"].apply(format_id)))
 
 display(nutrition.head())
@@ -98,7 +102,8 @@ If we recall, the \( A  \) matrix maps foods into constrained nutrients. This is
 Now that we have the bones of the matrix \( A \), lets next consider the price vector \( p \). The USDA generates national average prices ([[https://www.ers.usda.gov/data-products/purchase-to-plate][Purchase to Plate]]) for these FNDDS foods using scanner data from grocery stores all over the country. These are in USD per 100 grams of a recipe. They have been doing this for a while, and they produce the prices in two-year batches.
 
 #+begin_src jupyter-python :results none
-prices = pd.read_csv("Data/fndds_national_prices.csv", usecols=['year', 'food_code','price_100gm'])
+prices = read_sheets(url, sheet="prices")[["food_code", "year", "price"]]
+
 prices["food_code"] = prices["food_code"].apply(format_id)
 
 prices = prices.set_index(["year", "food_code"])
@@ -118,7 +123,8 @@ print(f"We have prices for {prices.shape[0]} unique recipes (FNDDS food codes)")
 
 As before, we'll get our dietary requirements from the USDA.
 #+begin_src jupyter-python :results none
-rda = pd.read_csv("Data/rda.csv")
+rda = read_sheets(url, sheet="rda")
+
 rda = rda.set_index("Nutrient")
 
 rda.columns
