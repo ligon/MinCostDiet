@@ -86,14 +86,6 @@ id =     # Put an FDC ID HERE!
 fdc.nutrients(apikey,fdc_id=id)
 #+end_src
 
-** FDC Ingredients
-
-We can also look up the ingredients for many foods in the FDC:
-#+begin_src jupyter-python
-
-fdc.ingredients(apikey,id)
-#+end_src
-
 
 * Prices
 
@@ -304,7 +296,7 @@ Recall that the mathematical problem we're trying to solve is
 \]
 such that
 \[
-     Ax \geq b
+     \tilde{A}x \geq \tilde{b}
 \]
 ** Objective function ($p$)
 If we buy a bag of groceries with quantities given by $x$, the total
