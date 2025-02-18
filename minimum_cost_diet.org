@@ -27,11 +27,8 @@ prices, and RDA requirements are all quite different from what they
 were for our grandparents.
 
 ** Dietary Guidelines
-   A compilation of dietary guidelines are provided at
-   https://health.gov/sites/default/files/2019-09/2015-2020_Dietary_Guidelines.pdf
-   (See especially Appendix 7);
-   these provide recommended levels of 31 different nutrients by age
-   and sex. 
+   A compilation of dietary guidelines are provided as part of the [[https://www.dietaryguidelines.gov/sites/default/files/2021-03/Dietary_Guidelines_for_Americans-2020-2025.pdf#page=144.06][Dietary Guidelines for Americans]]  (See especially Appendix 1);
+   these provide recommended levels of 31 different nutrients by age and sex, and are updated every five years.
 
 * The Model
 Stigler's insight was  that the  minimum cost diet (MCD) problem was
@@ -99,11 +96,10 @@ implementations; the one we'll use in our prototype is part of the
 
 ** Dietary Guidelines
    A compilation of dietary guidelines are provided at in an appendix of
-https://www.dietaryguidelines.gov/sites/default/files/2021-03/Dietary_Guidelines_for_Americans-2020-2025.pdf
+[[https://www.dietaryguidelines.gov/sites/default/files/2021-03/Dietary_Guidelines_for_Americans-2020-2025.pdf][Dietary Guidelines for Americans]]
 these provide recommended levels of 31 different nutrients by age and
-sex.  I've put some of these data into a google spreadsheet at
-https://docs.google.com/spreadsheets/d/1y95IsQ4HKspPW3HHDtH7QMtlDA66IUsCHJLutVL-MMc/.
-We'll use these to construct the vector $b$.
+sex, and are updated every five years.  I've put some of these data into a
+[[https://docs.google.com/spreadsheets/d/1y95IsQ4HKspPW3HHDtH7QMtlDA66IUsCHJLutVL-MMc/][google spreadsheet]].  We'll use these to construct the vector $b$.
 
 
 ** Nutritional content of different kinds of food
@@ -115,8 +111,8 @@ We'll use these to construct the vector $b$.
    kinds of foods; can also map FDC -> UPC for many (mostly processed) foods.
       - https://fdc.nal.usda.gov/;
       - here's documentation of the api: https://fdc.nal.usda.gov/api-guide.html
-      - Here's the actual data:
-         https://fdc.nal.usda.gov/download-datasets.html
+      - Here's the actual data:  https://fdc.nal.usda.gov/download-datasets.html
+      - Next time we'll introduce code which makes it simple to use the =api= from python.
 
 ** Foods, food prices, units
    This one is up to you!  You'll need to choose a set of candidate
@@ -146,27 +142,21 @@ minimum cost diet satisfying a set of "Recommended Daily Allowances"
 
  - Times have changed: the variety of different kinds of food, food
    prices, and RDA requirements are all quite different from what they
-   were for our grandparents.
+   were for our earlier generations.
 
 ** Dietary Guidelines
-   A compilation of dietary guidelines are provided at in an appendix
-of
-https://www.dietaryguidelines.gov/sites/default/files/2021-03/Dietary_Guidelines_for_Americans-2020-2025.pdf
-these provide recommended levels of 31 different nutrients by age and
-sex.  I've put some of these data into a google spreadsheet at
-https://docs.google.com/spreadsheets/d/1y95IsQ4HKspPW3HHDtH7QMtlDA66IUsCHJLutVL-MMc/.
+A compilation of dietary guidelines are provided at in an appendix of [[https://www.dietaryguidelines.gov/sites/default/files/2021-03/Dietary_Guidelines_for_Americans-2020-2025.pdf][Dietary Guidelines for Americans]].  These provide recommended levels of 31 different nutrients by age and sex, and are updated every five years.  I've put some of these data into a [[https://docs.google.com/spreadsheets/d/1y95IsQ4HKspPW3HHDtH7QMtlDA66IUsCHJLutVL-MMc/][google spreadsheet]].
 
 ** Diet Cost
  Stigler's insight was  that the  minimum cost diet (MCD) problem was
  most naturally posed as a [[https://en.wikipedia.org/wiki/Linear_programming][linear program]].
    - Suppose $n$ different kinds of food;
-   - Represent quantities consumed of these as a /vector/ $x$ with $n$
-     elements.  Many elements may be zero!
+   - Represent quantities consumed of these as a /vector/ $x$ with $n$  elements.  Many elements may be zero!
    - Each kind of food has price; call this vector of prices $p$. 
 
 *** Total Cost
  A consumer's diet costs $p'x$, where the prime indicates the
- inner or [[https://en.wikipedia.org/wiki/Dot_product][dot product]] of the two vectors.
+ inner or [[https://en.wikipedia.org/wiki/Dot_product][dot product]] of the two vectors: $p$ (prices) and $x$ (quantities of food).
 
 ** Nutritional Recommendations
  Each unit of a given kind of food is assumed to provide a set of
