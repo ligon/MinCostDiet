@@ -7,7 +7,7 @@ nutritious diet. As we have discussed, this can be set up as a linear program.
 
 \[
     \min_x p'x
-n\]
+\]
 
 such that
 \[
@@ -15,13 +15,13 @@ Ax \geq b
 \]
 
 where $p$ is a vector of prices, $A$ is a matrix that maps
-vectors of quantities of food into vectors of nutrients, and where b is a vector of nutrient constraints.
+vectors of quantities of food into vectors of nutrients, and where $b$ is a vector of nutrient constraints.
 
-The goal of this notebook is to expose the class to some data sources and to generate a minimum cost diet for the United States using recent national average price data.
+The goal of this notebook is to expose the class to some additional data sources and to generate a minimum cost diet for the United States using recent national average price data.
 
 * Food and Nutrient Data
 
-The USDA maintains a database of foods called the [[https://www.ars.usda.gov/northeast-area/beltsville-md-bhnrc/beltsville-human-nutrition-research-center/food-surveys-research-group/docs/fndds/][FNDDS]] (Food and Nutrition Database for Dietary Studies). In it, they define "recipes," which are made up of "ingredients." There are one or more ingredients per recipe. Ingredients are then mapped to nutrients in terms of nutrient units per 100 g of an ingredient. Thus, using these mappings, we can generate a FNDDS recipe-level food-to-nutrient matrix we can use as our "A" matrix.
+The USDA maintains a database of foods called the [[https://www.ars.usda.gov/northeast-area/beltsville-md-bhnrc/beltsville-human-nutrition-research-center/food-surveys-research-group/docs/fndds/][FNDDS]] (Food and Nutrition Database for Dietary Studies). In it, they define "recipes," which are made up of "ingredients." There are one or more ingredients per recipe. Ingredients are then mapped to nutrients in terms of nutrient units per hectogram (100g) of an ingredient. Thus, using these mappings, we can generate a FNDDS recipe-level food-to-nutrient matrix we can use as our "A" matrix.
 
 Lets first define a helper function we will use to make sure ids are formatted similarly (to help with dataframe merging). 
 
@@ -57,14 +57,14 @@ recipes = (recipes
            .rename(columns={"parent_desc": "recipe"}))
 
 
-# lets see an example of a recipe.. note 
+# lets see an example of a recipe.
 recipes[recipes["recipe"].str.contains("Vegetable lasagna", case=False)]
 #+end_src
 
 And we can take a look at the ingredients. I'll call this dataframe "nutrition" because that's what we really care about in here. 
 
 #+begin_src jupyter-python :results none
-nutrition = (read_sheets(url, sheet="nutrients")
+nutrition = (read_sheets(data_url, sheet="nutrients")
              .assign(ingred_code = lambda df: df["ingred_code"].apply(format_id)))
 
 display(nutrition.head())
@@ -93,6 +93,8 @@ df = df.groupby('parent_foodcode').agg({**{col: "sum" for col in numeric_cols},
 df.index.name = "recipe_id"
 
 food_names = df["recipe"]
+
+df.head()
 #+end_src
 
 If we recall, the \( A  \) matrix maps foods into constrained nutrients. This is effectively the transpose of our ~df~. We'll have to do more before we create ~A~ - not all of these nutrients are constrained, and unfortunately, we won't have prices for all foods. 
@@ -102,7 +104,7 @@ If we recall, the \( A  \) matrix maps foods into constrained nutrients. This is
 Now that we have the bones of the matrix \( A \), lets next consider the price vector \( p \). The USDA generates national average prices ([[https://www.ers.usda.gov/data-products/purchase-to-plate][Purchase to Plate]]) for these FNDDS foods using scanner data from grocery stores all over the country. These are in USD per 100 grams of a recipe. They have been doing this for a while, and they produce the prices in two-year batches.
 
 #+begin_src jupyter-python :results none
-prices = read_sheets(url, sheet="prices")[["food_code", "year", "price"]]
+prices = read_sheets(data_url, sheet="prices")[["food_code", "year", "price"]]
 
 prices["food_code"] = prices["food_code"].apply(format_id)
 
@@ -123,7 +125,7 @@ print(f"We have prices for {prices.shape[0]} unique recipes (FNDDS food codes)")
 
 As before, we'll get our dietary requirements from the USDA.
 #+begin_src jupyter-python :results none
-rda = read_sheets(url, sheet="rda")
+rda = read_sheets(data_url, sheet="rda")
 
 rda = rda.set_index("Nutrient")
 
