@@ -26,6 +26,10 @@ The USDA maintains a database of foods called the [[https://www.ars.usda.gov/nor
 Lets first define a helper function we will use to make sure ids are formatted similarly (to help with dataframe merging). 
 
 #+begin_src jupyter-python :results none
+%pip install eep153_tools
+%pip install python_gnupg
+%pip install -U gspread_pandas
+
 def format_id(id,zeropadding=0):
     """Nice string format for any id, string or numeric.
 
