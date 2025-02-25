@@ -186,7 +186,7 @@ df
 
  A function =units= in the [[file:fooddatacentral.py::from%20urllib.request%20import%20Request,%20urlopen][fdc]] module accomplishes this conversion
  for many different units, using the =python= [[https://pint.readthedocs.io/en/latest/][pint module]].  A file
- [[file:Data/food_units.txt][~/.units.rc]] can be edited to deal with odd cases such as
+ [[file:Data/food_units.txt][~/.unitsrc]] can be edited to deal with odd cases such as
  donuts, using a format described in the =pint= [[https://pint.readthedocs.io/en/latest/advanced/defining.html][documentation]].
 
  Here's an example of the usage of =fooddatacentral.units=:
@@ -198,6 +198,13 @@ print(fdc.units(5,'lbs'))
 print(fdc.units(1,'gallon'))
 print(fdc.units(2,'tea_bag'))
 print(fdc.units(12,'donut'))
+ #+end_src
+
+If you want to add to =.unitsrc= consider the shell commands
+ #+begin_src jupyter-python :results output raw :session
+!cat ~/.unitsrc
+# !echo "crumpet = 1.3 * oz" >> ~/.unitsrc # Appends new units to file
+# !ln -s ~/EEP153_Materials/Project2/Data/unitsrc ~/.unitsrc # Symbolic link to allow reading from dot-file
  #+end_src
 
  Now, use the =units= function to convert all foods to either
