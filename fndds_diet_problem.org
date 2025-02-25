@@ -17,7 +17,7 @@ Ax \geq b
 where $p$ is a vector of prices, $A$ is a matrix that maps
 vectors of quantities of food into vectors of nutrients, and where $b$ is a vector of nutrient constraints.
 
-The goal of this notebook is to expose the class to some additional data sources and to generate a minimum cost diet for the United States using recent national average price data.
+Last class, we solved this problem using a set of foods and prices related to Prof. Ligon's Monterey Market shopping trip as well as George Stigler's seminal min cost diet paper. Today, we'll leverage data sources from the USDA to generate a minimum cost diet for the United States using recent national average price data.
 
 * Food and Nutrient Data
 
@@ -93,7 +93,7 @@ df = df.groupby('parent_foodcode').agg({**{col: "sum" for col in numeric_cols},
 df.index.name = "recipe_id"
 
 food_names = df["recipe"]
-
+print(food_names.head())
 df.head()
 #+end_src
 
@@ -129,7 +129,7 @@ rda = read_sheets(data_url, sheet="rda")
 
 rda = rda.set_index("Nutrient")
 
-rda.columns
+rda.columns, rda.head()
 #+end_src
 
 * Putting It All Together
@@ -147,9 +147,12 @@ prices = prices.loc[common_recipes]
 prices.index = prices.index.map(food_names)
 
 A_all = df.T
+
+print(prices.head())
+print(A_all.head())
 #+end_src
 
-A_all will have the same number of foods as p has prices, but we now must to trim down the number of nutrients to include only those for which we have constraints. We'll look at the shapes of all these objects to be sure that the matrix multiplication operations are well defined.
+A\_all will have the same number of foods as p has prices, but we now must to trim down the number of nutrients to include only those for which we have constraints. We'll look at the shapes of all these objects to be sure that the matrix multiplication operations are well defined.
 
 #+begin_src jupyter-python
 # pick a demographic (column from rda dataframe)
