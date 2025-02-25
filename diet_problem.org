@@ -1,5 +1,7 @@
 #+OPTIONS: toc:nil todo:nil ^:nil
 #+PROPERTY: header-args:python :results output raw  :noweb no-export :exports code
+#+EXPORT_FILE_NAME: ../Materials/Project2/diet_problem.ipynb
+#+TITLE: Subsistence Diets
 
 * Introduction
   We're thinking about the problem of finding the cheapest possible
@@ -405,4 +407,3 @@ excess = tab.diff(axis=1).iloc[:,1]
 print(excess.loc[np.abs(excess) < tol].index.tolist())
 
 #+end_src
-  
