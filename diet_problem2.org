@@ -295,7 +295,7 @@ for s in scale:
     Price_response[np.log(s)] = cost
 
 Price_response = pd.DataFrame(Price_response).T
-Price_response.plot(labels=dict(index='change in log price',value='change in log cost'))
+Price_response.plot(labels=dict(index='change in log price',value='change in log cost', variable ='Legend'))
 
 #+end_src
 
@@ -332,7 +332,7 @@ Diet_response['%s Price' % ReferenceGood] = Diet_response['%s Price' % Reference
 Diet_response = Diet_response.set_index('%s Price' % ReferenceGood)
 
 # Just look at goods consumed in quantities greater than error tolerance
-Diet_response.loc[:,(Diet_response>tol).sum()>0].plot(label = dict(index='%s Price' % ReferenceGood,value='Hectograms'))
+Diet_response.loc[:,(Diet_response>tol).sum()>0].plot(labels = dict(index='%s Price' % ReferenceGood, value='Hectograms', variable ='Legend'))
 #+end_src
 
 
@@ -345,7 +345,7 @@ NutrientResponse = Diet_response@FoodNutrients.T
 
 # Drop columns of missing nutrients
 NutrientResponse = NutrientResponse.loc[:,NutrientResponse.count()>0]
-NutrientResponse.plot(label=dict(index='%s Price' % ReferenceGood,value='Nutrients'))
+NutrientResponse.plot(labels=dict(index='%s Price' % ReferenceGood, value='Nutrients', variable ='Legend'))
 #+end_src
 
 * Adding Constraint on Total Weight                              
@@ -394,7 +394,7 @@ Diet_response['%s Price' % ReferenceGood] = Diet_response['%s Price' % Reference
 Diet_response = Diet_response.set_index('%s Price' % ReferenceGood)
 
 # Just look at goods consumed in quantities greater than error tolerance
-Diet_response.loc[:,(Diet_response>tol).sum()>0].plot(label=dict(index='%s Price' % ReferenceGood,value='Hectograms'))
+Diet_response.loc[:,(Diet_response>tol).sum()>0].plot(labels=dict(index='%s Price' % ReferenceGood, value='Hectograms',variable ='Legend'))
 #+end_src
 
 
